@@ -1,0 +1,9 @@
+player.png 5 11
+11 80 20 0 walkright 78 101
+11 80 -20 0 walkleft 78 101
+1 0 0 0 duckright 78 101
+1 0 0 0 duckleft 78 101
+1 0 0 70 jumpright 78 101
+1 0 0 70 jumpleft 78 101
+1 0 0 0 idleright 78 101
+1 0 0 0 idleleft 78 101 

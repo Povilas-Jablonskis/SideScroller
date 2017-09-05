@@ -1,0 +1,8 @@
+<TextureAtlas imagePath="healthBar.png">
+	<SubTexture name="5" x="0" y="0" width="196" height="27"/>
+	<SubTexture name="4" x="0" y="27" width="196" height="27"/>
+	<SubTexture name="3" x="0" y="54" width="196" height="27"/>
+	<SubTexture name="2" x="0" y="81" width="196" height="27"/>
+	<SubTexture name="1" x="0" y="108" width="196" height="27"/>
+	<SubTexture name="0" x="0" y="135" width="196" height="27"/>
+</TextureAtlas>

@@ -1,0 +1,32 @@
+<Enemies>
+	<Enemy name="enemyBlack1" spriteName="enemyBlack1.png" shootingEffect="defaultShooting">
+		<Animations>
+			<Sprite name="shoot" spriteName="laserGreen11.png"/>
+			<Animation name="explosion" animationName="greenExplosionSpriteSheet"/>
+		</Animations>
+	</Enemy>
+	<Enemy name="enemyBlack2" spriteName="enemyBlack2.png" shootingEffect="doubleShooting">
+		<Animations>
+			<Sprite name="shoot" spriteName="laserGreen11.png"/>
+			<Animation name="explosion" animationName="greenExplosionSpriteSheet"/>
+		</Animations>
+	</Enemy>
+	<Enemy name="enemyBlack3" spriteName="enemyBlack3.png" shootingEffect="doubleShooting">
+		<Animations>
+			<Sprite name="shoot" spriteName="laserGreen11.png"/>
+			<Animation name="explosion" animationName="greenExplosionSpriteSheet"/>
+		</Animations>
+	</Enemy>
+	<Enemy name="enemyBlack4" spriteName="enemyBlack4.png" shootingEffect="halfCircleShooting">
+		<Animations>
+			<Sprite name="shoot" spriteName="laserGreen11.png"/>
+			<Animation name="explosion" animationName="greenExplosionSpriteSheet"/>
+		</Animations>
+	</Enemy>
+	<Enemy name="enemyBlack5" spriteName="enemyBlack5.png" shootingEffect="doubleHalfCircleShooting">
+		<Animations>
+			<Sprite name="shoot" spriteName="laserGreen11.png"/>
+			<Animation name="explosion" animationName="greenExplosionSpriteSheet"/>
+		</Animations>
+	</Enemy>
+</Enemies>

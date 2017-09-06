@@ -5,7 +5,7 @@
 namespace Engine
 {
 	BaseGameObject::BaseGameObject(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(State::STATE_IDLE), secondState(State::STATE_IDLE)
+		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(State::STATE_IDLE), secondState(State::STATE_IDLE), isDucking(false)
 	{
 		onDeath = []()
 		{
@@ -20,10 +20,13 @@ namespace Engine
 
 	bool BaseGameObject::update(float dt, glm::vec2 gravity)
 	{
-		velocity += gravity * dt;
+		if (getSecondState() != STATE_CLIMBING)
+		{
+			velocity += gravity * dt;
 
-		if (velocity.y <= 0.0f)
-			setSecondState(STATE_FALLING);
+			if (velocity.y <= 0.0f)
+				setSecondState(STATE_FALLING);
+		}
 
 		updateAnimation(dt);
 		return getNeedsToBeDeleted();
@@ -57,23 +60,24 @@ namespace Engine
 		if (lastFirstState == state)
 			return;
 
-		if (lastFirstState != STATE_DUCKING && state == STATE_DUCKING)
+		firstState = state;
+
+		if (getIsDucking())
+		{
 			applyAnimation(getAnimationByIndex("duck"));
-		else if (lastFirstState == STATE_DUCKING && state == STATE_IDLE)
-			applyAnimation(getAnimationByIndex("stand"));
+			return;
+		}
 
 		if (lastFirstState == STATE_IDLE && (state == STATE_WALKINGLEFT || state == STATE_WALKINGRIGHT))
 			applyAnimation(getAnimationByIndex("walk"));
 		if ((lastFirstState == STATE_WALKINGLEFT || lastFirstState == STATE_WALKINGRIGHT) && state == STATE_IDLE)
 		{
 			auto secondState = getSecondState();
-			if (secondState == STATE_FALLING || secondState == STATE_JUMPING)
+			if (secondState == STATE_FALLING || secondState == STATE_JUMPING || secondState == STATE_CLIMBING)
 				applyAnimation(getAnimationByIndex("jump"));
 			else if (secondState == STATE_IDLE)
 				applyAnimation(getAnimationByIndex("stand"));
 		}
-
-		firstState = state;
 	}
 
 	void BaseGameObject::setSecondState(State state)
@@ -83,11 +87,17 @@ namespace Engine
 		if (lastSecondState == state)
 			return;
 
-		if ((state == STATE_FALLING || state == STATE_JUMPING) && getFirstState() == STATE_IDLE)
+		secondState = state;
+
+		if (getIsDucking())
+		{
+			applyAnimation(getAnimationByIndex("duck"));
+			return;
+		}
+
+		if ((state == STATE_FALLING || state == STATE_JUMPING || state == STATE_CLIMBING) && getFirstState() == STATE_IDLE)
 			applyAnimation(getAnimationByIndex("jump"));
 		else if (state == STATE_IDLE && getFirstState() == STATE_IDLE)
 			applyAnimation(getAnimationByIndex("stand"));
-
-		secondState = state;
 	}
 }

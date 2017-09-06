@@ -29,17 +29,20 @@ namespace Engine
 			void addAnimation(std::string, std::shared_ptr<Animation>);
 			std::shared_ptr<Animation> getAnimationByIndex(std::string);
 			inline void setVelocity(glm::vec2 _velocity) { velocity = _velocity; };
-			inline void setVelocity(int index, float _velocity) { velocity[index] = _velocity; };
-			inline float getVelocity(int index) { return velocity[index]; };
-			inline glm::vec2 getVelocity() { return velocity; };
+			inline void setVelocity(int index, float _velocity) { velocity[index] = _velocity; }
+			inline float getVelocity(int index) { return velocity[index]; }
+			inline glm::vec2 getVelocity() { return velocity; }
 			std::function<void()> onDeath;
-			inline void setNeedsToBeDeleted(bool boolean) { needsToBeDeleted = boolean; };
+			inline void setNeedsToBeDeleted(bool boolean) { needsToBeDeleted = boolean; }
 			inline bool getNeedsToBeDeleted() const { return needsToBeDeleted; }
 			inline State getFirstState() const { return firstState; }
 			void setFirstState(State);
 			inline State getSecondState() const { return secondState; }
 			void setSecondState(State);
+			inline void setIsDucking(bool boolean) { isDucking = boolean; }
+			inline bool getIsDucking() const { return isDucking; }
 		protected:
+			bool isDucking;
 			State firstState;
 			State secondState;
 			bool needsToBeDeleted;

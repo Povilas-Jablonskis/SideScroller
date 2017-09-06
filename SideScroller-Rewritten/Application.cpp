@@ -37,6 +37,7 @@ namespace Engine
 		inputManager->setKeyBinding("Move Right", 0x44);
 		inputManager->setKeyBinding("Jump", VK_SPACE);
 		inputManager->setKeyBinding("Duck", 0x53);
+		inputManager->setKeyBinding("Climb", 0x57);
 
 		renderer->addShader("shader", std::make_shared<Shader>("shader.vert", "shader.frag"));
 		renderer->addShader("textshader", std::make_shared<Shader>("textshader.vert", "textshader.frag"));
@@ -46,7 +47,7 @@ namespace Engine
 
 		initSpriteSheets();
 
-		background = std::make_shared<UIElementBase>(2000.0f, (float)glutGet(GLUT_INIT_WINDOW_HEIGHT), glm::vec2(0.0f, 0.0f), glm::vec4(208.0f, 244.0f, 247.0f, 1.0f), glm::vec2(0.0f, 0.0f));
+		background = std::make_shared<UIElementBase>(2000.0f, 2000.0f, glm::vec2(0.0f, 0.0f), glm::vec4(208.0f, 244.0f, 247.0f, 1.0f), glm::vec2(0.0f, 0.0f));
 
 		initGameUI();
 		currentMenu = getUIElement("Main Menu");
@@ -356,10 +357,16 @@ namespace Engine
 				//		it++;
 				//}
 
-				player->setPosition(0, player->getPosition(0) + (player->getVelocity(0) * dt));
+				if (player->getIsDucking())
+					player->setPosition(0, player->getPosition(0) + ((player->getVelocity(0) / 2.0f) * dt));
+				else
+					player->setPosition(0, player->getPosition(0) + (player->getVelocity(0) * dt));
 				collisionManager->checkCollision(player, &groundObjects, true);
 
-				player->setPosition(1, player->getPosition(1) + (player->getVelocity(1) * dt));
+				if (player->getSecondState() == STATE_CLIMBING && player->getIsDucking())
+					player->setPosition(1, player->getPosition(1) + ((player->getVelocity(1) / 2.0f) * dt));
+				else
+					player->setPosition(1, player->getPosition(1) + (player->getVelocity(1) * dt));
 				collisionManager->checkCollision(player, &groundObjects, false);
 
 				if (player->getPosition(0) < glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)

@@ -85,25 +85,35 @@ namespace Engine
 				player->setSecondState(STATE_JUMPING);
 				player->setVelocity(1, 80.0f);
 			}
-			else if (getKey(getKeyBinding("Duck")))
-			{
-				player->setVelocity(0, 0.0f);
-				player->setFirstState(STATE_DUCKING);
-			}
+		}
+
+		if (player->getSecondState() == STATE_CLIMBING && !getKey(getKeyBinding("Climb")))
+		{
+			player->setSecondState(STATE_IDLE);
+			player->setVelocity(1, 0.0f);
+		}
+		else if (player->getSecondState() != STATE_CLIMBING && getKey(getKeyBinding("Climb")))
+		{
+			player->setSecondState(STATE_CLIMBING);
+			player->setVelocity(1, 20.0f);
 		}
 
 		auto firstState = player->getFirstState();
 
-		if (firstState == STATE_DUCKING && !getKey(getKeyBinding("Duck")))
+		if (!player->getIsDucking() && getKey(getKeyBinding("Duck")))
 		{
-			player->setFirstState(STATE_IDLE);
-			player->setVelocity(0, 0.0f);
-			return;
+			player->applyAnimation(player->getAnimationByIndex("duck"));
+			player->setIsDucking(true);
+		}
+		else if (player->getIsDucking() && !getKey(getKeyBinding("Duck")))
+		{
+			player->applyAnimation(player->getAnimationByIndex("stand"));
+			player->setIsDucking(false);
 		}
 
 		switch (firstState)
 		{
-			case Engine::STATE_IDLE:
+			case STATE_IDLE:
 			{
 				if (getKey(getKeyBinding("Move Left")))
 				{

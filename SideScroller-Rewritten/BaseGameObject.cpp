@@ -5,8 +5,13 @@
 namespace Engine
 {
 	BaseGameObject::BaseGameObject(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(State::STATE_IDLE), secondState(State::STATE_IDLE), isDucking(false)
+		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(State::STATE_IDLE), secondState(State::STATE_IDLE), isDucking(false), canClimb(false)
 	{
+		onCollision = [](BaseGameObject* collider)
+		{
+
+		};
+
 		onDeath = []()
 		{
 
@@ -24,7 +29,17 @@ namespace Engine
 		{
 			velocity += gravity * dt;
 
-			if (velocity.y <= 0.0f)
+			if (getCanClimb())
+			{
+				setVelocity(1, 0.0f);
+				setSecondState(STATE_CLIMBING);
+			}
+			else if (velocity.y <= 0.0f)
+				setSecondState(STATE_FALLING);
+		}
+		else
+		{
+			if (!getCanClimb())
 				setSecondState(STATE_FALLING);
 		}
 

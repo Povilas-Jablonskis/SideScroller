@@ -72,6 +72,8 @@ namespace Engine
 			float accumulator;
 
 			std::vector<std::shared_ptr<BaseGameObject>> groundObjects;
+			std::vector<std::shared_ptr<BaseGameObject>> climbableObjects;
+			std::vector<std::shared_ptr<BaseGameObject>> unlockableObjects;
 			std::vector<std::shared_ptr<Enemy>> enemies;
 			std::vector<std::pair<std::string, std::shared_ptr<UIElement>>> ui;
 			std::vector<std::pair<std::string, std::shared_ptr<UIElement>>> playerUI;

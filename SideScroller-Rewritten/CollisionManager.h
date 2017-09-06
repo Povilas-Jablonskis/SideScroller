@@ -9,6 +9,7 @@ namespace Engine
 	{
 		public:
 			bool checkCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>, bool);
+			bool checkCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>);
 			template <typename T, typename T2>
 			void checkCollision(std::shared_ptr<T> object, std::vector<std::shared_ptr<T2>>* colliderList, bool checkX)
 			{

@@ -87,28 +87,37 @@ namespace Engine
 			}
 		}
 
-		if (player->getSecondState() == STATE_CLIMBING && !getKey(getKeyBinding("Climb")))
-		{
-			player->setSecondState(STATE_IDLE);
-			player->setVelocity(1, 0.0f);
-		}
-		else if (player->getSecondState() != STATE_CLIMBING && getKey(getKeyBinding("Climb")))
-		{
-			player->setSecondState(STATE_CLIMBING);
-			player->setVelocity(1, 20.0f);
-		}
-
 		auto firstState = player->getFirstState();
 
-		if (!player->getIsDucking() && getKey(getKeyBinding("Duck")))
+		if (player->getSecondState() == STATE_CLIMBING)
 		{
-			player->applyAnimation(player->getAnimationByIndex("duck"));
-			player->setIsDucking(true);
+			if (getKey(getKeyBinding("Climb")))
+				player->setVelocity(1, 20.0f);
+			else if (getKey(getKeyBinding("Duck")))
+				player->setVelocity(1, -20.0f);
+			else
+				player->setVelocity(1, 0.0f);
 		}
-		else if (player->getIsDucking() && !getKey(getKeyBinding("Duck")))
+		else
 		{
-			player->applyAnimation(player->getAnimationByIndex("stand"));
-			player->setIsDucking(false);
+			if (!player->getIsDucking() && getKey(getKeyBinding("Duck")))
+			{
+				player->applyAnimation(player->getAnimationByIndex("duck"));
+				player->setIsDucking(true);
+			}
+			else if (player->getIsDucking() && !getKey(getKeyBinding("Duck")))
+			{
+				if (player->getFirstState() == STATE_WALKINGLEFT || player->getFirstState() == STATE_WALKINGRIGHT)
+					player->applyAnimation(player->getAnimationByIndex("walk"));
+				else if (player->getFirstState() == STATE_IDLE)
+				{
+					if (player->getSecondState() == STATE_FALLING || player->getSecondState() == STATE_JUMPING || player->getSecondState() == STATE_CLIMBING)
+						player->applyAnimation(player->getAnimationByIndex("jump"));
+					else if (player->getSecondState() == STATE_IDLE)
+						player->applyAnimation(player->getAnimationByIndex("stand"));
+				}
+				player->setIsDucking(false);
+			}
 		}
 
 		switch (firstState)

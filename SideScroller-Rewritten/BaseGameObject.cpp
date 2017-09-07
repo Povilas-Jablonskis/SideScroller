@@ -7,7 +7,7 @@ namespace Engine
 	BaseGameObject::BaseGameObject(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
 		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(State::STATE_IDLE), secondState(State::STATE_IDLE), isDucking(false), canClimb(false)
 	{
-		onCollision = [](BaseGameObject* collider)
+		onCollision = [](BaseGameObject* collider, glm::vec2 depth)
 		{
 
 		};
@@ -72,17 +72,18 @@ namespace Engine
 	{
 		auto lastFirstState = getFirstState();
 
-		if (lastFirstState == state)
-			return;
+		if (lastFirstState == state) return;
 
 		firstState = state;
 
-		if (getIsDucking())
+		if (state != STATE_DEAD && getIsDucking())
 		{
 			applyAnimation(getAnimationByIndex("duck"));
 			return;
 		}
 
+		if (state == STATE_DEAD)
+			applyAnimation(getAnimationByIndex("dead"));
 		if (lastFirstState == STATE_IDLE && (state == STATE_WALKINGLEFT || state == STATE_WALKINGRIGHT))
 			applyAnimation(getAnimationByIndex("walk"));
 		if ((lastFirstState == STATE_WALKINGLEFT || lastFirstState == STATE_WALKINGRIGHT) && state == STATE_IDLE)
@@ -99,10 +100,11 @@ namespace Engine
 	{
 		auto lastSecondState = getSecondState();
 
-		if (lastSecondState == state)
-			return;
+		if (lastSecondState == state) return;
 
 		secondState = state;
+
+		if (getFirstState() == STATE_DEAD) return;
 
 		if (getIsDucking())
 		{

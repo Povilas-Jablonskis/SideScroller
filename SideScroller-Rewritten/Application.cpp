@@ -65,6 +65,7 @@ namespace Engine
 		auto healthSpriteSheet = std::make_shared<SpriteSheet>();
 		auto spriteSheet = std::make_shared<SpriteSheet>();
 		auto playerSpriteSheet = std::make_shared<SpriteSheet>();
+		auto enemySpriteSheet = std::make_shared<SpriteSheet>();
 		auto ropeAttachedSpriteSheet = std::make_shared<SpriteSheet>();
 		auto ropeVerticalSpriteSheet = std::make_shared<SpriteSheet>();
 		auto boxItemAltSpriteSheet = std::make_shared<SpriteSheet>();
@@ -76,6 +77,8 @@ namespace Engine
 		auto bridgeLogsSpriteSheet = std::make_shared<SpriteSheet>();
 		auto liquidWaterTop_midSpriteSheet = std::make_shared<SpriteSheet>();
 		auto hill_smallSpriteSheet = std::make_shared<SpriteSheet>();
+
+		std::vector<glm::vec4> sprites;
 
 		boxItemAltSpriteSheet->loadSpriteSheet("Tiles/boxItemAlt.png");
 		ropeAttachedSpriteSheet->loadSpriteSheet("Tiles/ropeAttached.png");
@@ -89,10 +92,21 @@ namespace Engine
 		liquidWaterTop_midSpriteSheet->loadSpriteSheet("Tiles/liquidWaterTop_mid.png");
 		hill_smallSpriteSheet->loadSpriteSheet("Tiles/hill_small.png");
 
+		enemySpriteSheet->loadSpriteSheet("Enemies/enemies_spritesheet.png");
+		enemySpriteSheet->loadSpritesFromXml("Enemies/enemies_spritesheet.xml");
+
+		sprites.clear();
+		sprites.push_back(enemySpriteSheet->getSpriteAsVector("slimeWalk1"));
+		sprites.push_back(enemySpriteSheet->getSpriteAsVector("slimeWalk2"));
+		enemySpriteSheet->makeAnimation("slimeWalk", sprites);
+
+		enemySpriteSheet->getAnimation("slimeWalk")->setLoopStatus(true);
+		enemySpriteSheet->getAnimation("slimeWalk")->setDelay(0.1f);
+
 		playerSpriteSheet->loadSpriteSheet("Player/p1_spritesheet.png");
 		playerSpriteSheet->loadSpritesFromXml("Player/p1_spritesheet.xml");
 
-		std::vector<glm::vec4> sprites;
+		sprites.clear();
 		sprites.push_back(playerSpriteSheet->getSpriteAsVector("walk01"));
 		sprites.push_back(playerSpriteSheet->getSpriteAsVector("walk02"));
 		sprites.push_back(playerSpriteSheet->getSpriteAsVector("walk03"));
@@ -109,8 +123,6 @@ namespace Engine
 		playerSpriteSheet->getAnimation("walk")->setLoopStatus(true);
 		playerSpriteSheet->getAnimation("walk")->setDelay(0.1f);
 
-		sprites.clear();
-
 		spriteSheet->loadSpriteSheet("Tiles/box.png");
 
 		healthSpriteSheet->loadSpriteSheet("GUI/healthBar.png");
@@ -119,6 +131,7 @@ namespace Engine
 		spriteSheetManager->loadSpriteSheet("health", healthSpriteSheet);
 		spriteSheetManager->loadSpriteSheet("box", spriteSheet);
 		spriteSheetManager->loadSpriteSheet("player", playerSpriteSheet);
+		spriteSheetManager->loadSpriteSheet("enemy", enemySpriteSheet);
 		spriteSheetManager->loadSpriteSheet("ropeAttached", ropeAttachedSpriteSheet);
 		spriteSheetManager->loadSpriteSheet("ropeVertical", ropeVerticalSpriteSheet);
 		spriteSheetManager->loadSpriteSheet("boxItemAlt", boxItemAltSpriteSheet);
@@ -191,7 +204,7 @@ namespace Engine
 
 	void Application::initScene()
 	{
-		player = std::make_shared<Player>(32.0f, 32.0f, glm::vec2(90.0f, 34.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		player = std::make_shared<Player>(32.0f, 32.0f, glm::vec2(400.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		player->addAnimation("walk", spriteSheetManager->getSpriteSheet("player")->getAnimation("walk"));
 		player->addAnimation("stand", spriteSheetManager->getSpriteSheet("player")->getSprite("stand"));
 		player->addAnimation("jump", spriteSheetManager->getSpriteSheet("player")->getSprite("jump"));
@@ -204,6 +217,10 @@ namespace Engine
 			getUIElement("Game Over")->showMain(false);
 		};
 		player->addObserver(this);
+
+		groundObjects.clear();
+		climbableObjects.clear();
+		unlockableObjects.clear();
 
 		for (int i = 0; i < 2000; i += 32)
 		{
@@ -251,7 +268,7 @@ namespace Engine
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 156.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("keyYellow")->getSprite("wholeSpriteSheet"));
-		object->onCollision = [this, object](BaseGameObject* collider)
+		object->onCollision = [this, object](BaseGameObject* collider, glm::vec2 depth)
 		{
 			object->setNeedsToBeDeleted(true);
 			unlockableObjects.clear();
@@ -276,12 +293,56 @@ namespace Engine
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(252.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("signExit")->getSprite("wholeSpriteSheet"));
-		object->onCollision = [this, object](BaseGameObject* collider)
+		object->onCollision = [this, object](BaseGameObject* collider, glm::vec2 depth)
 		{
-			Timer::windowsTimer([this]{ getPlayerUIElement("Level completed")->hideMain(); }, 2000);
-			getPlayerUIElement("Level completed")->showMain(false);
+			auto player = dynamic_cast<Player*>(collider);
+
+			if (player != nullptr)
+			{
+				Timer::windowsTimer([this]{ getPlayerUIElement("Level completed")->hideMain(); }, 2000);
+				getPlayerUIElement("Level completed")->showMain(false);
+			}
 		};
 		groundObjects.push_back(std::move(object));
+
+
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(320.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
+		groundObjects.push_back(std::move(object));
+
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(352.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
+		groundObjects.push_back(std::move(object));
+
+		enemies.clear();
+
+		auto enemy = std::make_shared<Enemy>(35.0f, 19.6f, glm::vec2(320.0f, 70.0f), glm::vec2(10.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		enemy->addAnimation("walk", spriteSheetManager->getSpriteSheet("enemy")->getAnimation("slimeWalk"));
+		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("slimeDead"));
+		enemy->setFirstState(STATE_WALKINGRIGHT);
+		enemy->onCollision = [this, enemy](BaseGameObject* collider, glm::vec2 depth)
+		{
+			auto player = dynamic_cast<Player*>(collider);
+
+			if (player != nullptr )
+			{
+				if (depth.x > collider->getSize(0) * -1.0f && depth.x < collider->getSize(0) && depth.y > 0.0f && depth.y < 1.0f)
+				{
+					player->setScore(player->getScore() + 100);
+					enemy->setVelocity(glm::vec2(0.0f, 50.0f));
+					enemy->setFirstState(STATE_DEAD);
+				}
+				else if (depth.y <= enemy->getSize(1))
+					player->setNeedsToBeDeleted(true);
+			}
+			else
+			{
+				auto enemyHeight = (int)enemy->getSize(1) * -1;
+				if (depth.y >= 1.0f || (int)depth.y == enemyHeight)
+					enemy->setVelocity(0, enemy->getVelocity(0) * -1.0f);
+			}
+		};
+		enemies.push_back(std::move(enemy));
 
 		initPlayerUI();
 
@@ -444,13 +505,27 @@ namespace Engine
 			{
 				player->update(dt, gravity);
 
-				//for (std::vector<std::shared_ptr<Enemy>>::iterator it = enemies.begin(); it != enemies.end();)
-				//{
-				//	if ((*it)->update(dt, gravity))
-				//		it = enemies.erase(it);
-				//	else
-				//		it++;
-				//}
+				for (std::vector<std::shared_ptr<Enemy>>::iterator it = enemies.begin(); it != enemies.end();)
+				{
+					if ((*it)->getIsDucking())
+						(*it)->setPosition(0, (*it)->getPosition(0) + (((*it)->getVelocity(0) / 2.0f) * dt));
+					else
+						(*it)->setPosition(0, (*it)->getPosition(0) + ((*it)->getVelocity(0) * dt));
+					collisionManager->checkCollision(*it, &groundObjects, true);
+					collisionManager->checkCollision(*it, &unlockableObjects, true);
+
+					if ((*it)->getSecondState() == STATE_CLIMBING && (*it)->getIsDucking())
+						(*it)->setPosition(1, (*it)->getPosition(1) + (((*it)->getVelocity(1) / 2.0f) * dt));
+					else
+						(*it)->setPosition(1, (*it)->getPosition(1) + ((*it)->getVelocity(1) * dt));
+					collisionManager->checkCollision(*it, &groundObjects, false);
+					collisionManager->checkCollision(*it, &unlockableObjects, false);
+
+					if ((*it)->update(dt, gravity))
+						it = enemies.erase(it);
+					else
+						it++;
+				}
 
 				for (std::vector<std::shared_ptr<BaseGameObject>>::iterator it = groundObjects.begin(); it != groundObjects.end();)
 				{
@@ -468,34 +543,27 @@ namespace Engine
 						it++;
 				}
 
+				//Collision detection
+
 				if (player->getIsDucking())
 					player->setPosition(0, player->getPosition(0) + ((player->getVelocity(0) / 2.0f) * dt));
 				else
 					player->setPosition(0, player->getPosition(0) + (player->getVelocity(0) * dt));
-				collisionManager->checkCollision(player, &groundObjects, true);
-				collisionManager->checkCollision(player, &unlockableObjects, true);
-
-				for (auto climbable : climbableObjects)
-				{
-					if (collisionManager->checkCollision(player, climbable))
-					{
-						player->setCanClimb(true);
-						break;
-					}
-					else
-						player->setCanClimb(false);
-				}
+				collisionManager->checkCollision(player, &groundObjects, true, camera);
+				collisionManager->checkCollision(player, &unlockableObjects, true, camera);
 
 				if (player->getSecondState() == STATE_CLIMBING && player->getIsDucking())
 					player->setPosition(1, player->getPosition(1) + ((player->getVelocity(1) / 2.0f) * dt));
 				else
 					player->setPosition(1, player->getPosition(1) + (player->getVelocity(1) * dt));
-				collisionManager->checkCollision(player, &groundObjects, false);
-				collisionManager->checkCollision(player, &unlockableObjects, false);
+				collisionManager->checkCollision(player, &groundObjects, false, camera);
+				collisionManager->checkCollision(player, &unlockableObjects, false, camera);
+
+				collisionManager->checkCollision(player, &enemies, camera);
 
 				for (auto climbable : climbableObjects)
 				{
-					if (collisionManager->checkCollision(player, climbable))
+					if (collisionManager->checkCollision(player, climbable, camera))
 					{
 						player->setCanClimb(true);
 						break;
@@ -518,15 +586,10 @@ namespace Engine
 				else
 					camera.y = player->getPosition(1) - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2;
 
-				//Collision detection
-				if (player->getPosition(0) + player->getSize(0) > windowWidth)
-					player->setPosition(0, windowWidth - player->getSize(0));
-				else if (player->getPosition(0) < 0.0f)
+				if (player->getPosition(0) < 0.0f)
 					player->setPosition(0, 0.0f);
 
-				if (player->getPosition(1) + player->getSize(1) > windowHeigth)
-					player->setPosition(1, windowHeigth - player->getSize(1));
-				else if (player->getPosition(1) < 0.0f)
+				if (player->getPosition(1) < 0.0f)
 					player->setPosition(1, 0.0f);
 
 				t += dt;

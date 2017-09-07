@@ -13,8 +13,6 @@ namespace Engine
 
 	bool Player::update(float dt, glm::vec2 gravity)
 	{
-		BaseGameObject::update(dt, gravity);
-
 		if (needsToBeDeleted)
 		{
 			needsToBeDeleted = false;
@@ -22,7 +20,7 @@ namespace Engine
 			return false;
 		}
 
-		updateAnimation(dt);
+		BaseGameObject::update(dt, gravity);
 		return true;
 	}
 
@@ -32,7 +30,7 @@ namespace Engine
 		if (getHealth() < 1)
 			onDeath();
 		setVelocity(startVelocity);
-		setPosition(glm::vec2((float)glutGet(GLUT_WINDOW_X) / 2.0f, 0.0f));
+		setPosition(glm::vec2(0.0f, 34.0f));
 	}
 
 	void Player::restart()
@@ -40,6 +38,6 @@ namespace Engine
 		setScore(0);
 		setHealth(startHealth);
 		setVelocity(startVelocity);
-		setPosition(glm::vec2((float)glutGet(GLUT_WINDOW_X) / 2.0f, 0.0f));
+		setPosition(glm::vec2(0.0f, 34.0f));
 	}
 }

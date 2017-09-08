@@ -9,8 +9,8 @@ namespace Engine
 	class CollisionManager
 	{
 		public:
-			bool checkCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>, bool, glm::vec2 = glm::vec2(0.0f,0.0f));
-			bool checkCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>, glm::vec2 = glm::vec2(0.0f, 0.0f));
+			bool checkCollision(std::shared_ptr<Entity>, std::shared_ptr<BaseGameObject>, bool, glm::vec2 = glm::vec2(0.0f, 0.0f));
+			bool checkCollision(std::shared_ptr<Entity>, std::shared_ptr<BaseGameObject>, glm::vec2 = glm::vec2(0.0f, 0.0f));
 			bool checkCollision(std::shared_ptr<Player>, std::shared_ptr<BaseGameObject>, bool, glm::vec2 = glm::vec2(0.0f, 0.0f));
 			bool checkCollision(std::shared_ptr<Player>, std::shared_ptr<BaseGameObject>, glm::vec2 = glm::vec2(0.0f, 0.0f));
 			template <typename T, typename T2>
@@ -36,6 +36,9 @@ namespace Engine
 				}
 			}
 		private:
+			bool addCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>);
+			bool removeCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>);
+			std::vector<std::pair<std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>>> collisions;
 			glm::vec2 checkCollision(glm::vec4, glm::vec4);
 	};
 }

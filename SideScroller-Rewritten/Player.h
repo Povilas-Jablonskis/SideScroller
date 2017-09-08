@@ -1,12 +1,11 @@
 #ifndef _playerH
 #define _playerH
 
-#include "BaseGameObject.h"
-#include "Subject.h"
+#include "Entity.h"
 
 namespace Engine
 {
-	class Player : public BaseGameObject, public Subject
+	class Player : public Entity
 	{
 		public:
 			Player(float, float, glm::vec2, glm::vec2, glm::vec4);

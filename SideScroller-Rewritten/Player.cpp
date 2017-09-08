@@ -7,7 +7,7 @@
 namespace Engine
 {
 	Player::Player(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: BaseGameObject(_width, _height, _position, _velocity, _color), startHealth(3), health(startHealth), score(0), startVelocity(_velocity)
+		: Entity(_width, _height, _position, _velocity, _color), startHealth(3), health(startHealth), score(0), startVelocity(_velocity)
 	{
 	}
 
@@ -20,7 +20,7 @@ namespace Engine
 			return false;
 		}
 
-		BaseGameObject::update(dt, gravity);
+		Entity::update(dt, gravity);
 		return true;
 	}
 

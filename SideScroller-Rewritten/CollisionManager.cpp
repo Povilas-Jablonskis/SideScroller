@@ -30,17 +30,31 @@ namespace Engine
 		return glm::vec2(depthX, depthY);
 	}
 
-	bool CollisionManager::checkCollision(std::shared_ptr<BaseGameObject> object, std::shared_ptr<BaseGameObject> collider, bool checkX, glm::vec2 offset) // AABB - AABB collision
+	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX, glm::vec2 offset) // AABB - AABB collision
 	{
-		if (object->getNeedsToBeDeleted() || collider->getNeedsToBeDeleted()) return false;
+		if (object->getNeedsToBeDeleted() || object->getFirstState() == STATE_DEAD) return false;
+		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
 
 		auto depth = checkCollision(glm::vec4(object->getPosition() + offset, object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
 
 		if (depth == glm::vec2(0.0f, 0.0f))
+		{
+			if (removeCollision(object, collider))
+			{
+				collider->onCollisionExit(object.get(), depth);
+				object->onCollisionExit(collider.get(), depth);
+			}
 			return false;
+		}
 
-		collider->onCollision(object.get(), depth);
-		object->onCollision(collider.get(), depth);
+		if (addCollision(object, collider))
+		{
+			collider->onCollisionEnter(object.get(), depth);
+			object->onCollisionEnter(collider.get(), depth);
+		}
+
+		if(object->getCanClimb() && collider->getClimable())
+			return true;
 
 		if (checkX)
 			object->setPosition(0, object->getPosition(0) + depth.x);
@@ -59,15 +73,29 @@ namespace Engine
 
 	bool CollisionManager::checkCollision(std::shared_ptr<Player> player, std::shared_ptr<BaseGameObject> collider, bool checkX, glm::vec2 offset) // AABB - AABB collision
 	{
-		if (player->getNeedsToBeDeleted() || collider->getNeedsToBeDeleted()) return false;
+		if (player->getNeedsToBeDeleted() || player->getFirstState() == STATE_DEAD) return false;
+		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
 
 		auto depth = checkCollision(glm::vec4(player->getPosition(), player->getSize(0), player->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
 
 		if (depth == glm::vec2(0.0f, 0.0f))
+		{
+			if (removeCollision(player, collider))
+			{
+				collider->onCollisionExit(player.get(), depth);
+				player->onCollisionExit(collider.get(), depth);
+			}
 			return false;
+		}
 
-		collider->onCollision(player.get(), depth);
-		player->onCollision(collider.get(), depth);
+		if (addCollision(player, collider))
+		{
+			collider->onCollisionEnter(player.get(), depth);
+			player->onCollisionEnter(collider.get(), depth);
+		}
+
+		if (player->getCanClimb() && collider->getClimable())
+			return true;
 
 		if (checkX)
 			player->setPosition(0, player->getPosition(0) + depth.x);
@@ -86,29 +114,77 @@ namespace Engine
 
 	bool CollisionManager::checkCollision(std::shared_ptr<Player> player, std::shared_ptr<BaseGameObject> collider, glm::vec2 offset) // AABB - AABB collision
 	{
-		if (player->getNeedsToBeDeleted() || collider->getNeedsToBeDeleted()) return false;
+		if (player->getNeedsToBeDeleted() || player->getFirstState() == STATE_DEAD) return false;
+		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
 
 		auto depth = checkCollision(glm::vec4(player->getPosition(), player->getSize(0), player->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
 
 		if (depth == glm::vec2(0.0f, 0.0f))
+		{
+			if (removeCollision(player, collider))
+			{
+				collider->onCollisionExit(player.get(), depth);
+				player->onCollisionExit(collider.get(), depth);
+			}
 			return false;
+		}
 
-		collider->onCollision(player.get(), depth);
-		player->onCollision(collider.get(), depth);
+		if (addCollision(player, collider))
+		{
+			collider->onCollisionEnter(player.get(), depth);
+			player->onCollisionEnter(collider.get(), depth);
+		}
 		return true;
 	}
 
-	bool CollisionManager::checkCollision(std::shared_ptr<BaseGameObject> object, std::shared_ptr<BaseGameObject> collider, glm::vec2 offset) // AABB - AABB collision
+	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, glm::vec2 offset) // AABB - AABB collision
 	{
-		if (object->getNeedsToBeDeleted() || collider->getNeedsToBeDeleted()) return false;
+		if (object->getNeedsToBeDeleted() || object->getFirstState() == STATE_DEAD) return false;
+		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
 
 		auto depth = checkCollision(glm::vec4(object->getPosition() + offset, object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
 
 		if (depth == glm::vec2(0.0f, 0.0f))
+		{
+			if (removeCollision(object, collider))
+			{
+				collider->onCollisionExit(object.get(), depth);
+				object->onCollisionExit(collider.get(), depth);
+			}
 			return false;
+		}
 
-		collider->onCollision(object.get(), depth);
-		object->onCollision(collider.get(), depth);
+		if (addCollision(object, collider))
+		{
+			collider->onCollisionEnter(object.get(), depth);
+			object->onCollisionEnter(collider.get(), depth);
+		}
 		return true;
+	}
+
+	bool CollisionManager::addCollision(std::shared_ptr<BaseGameObject> object, std::shared_ptr<BaseGameObject> collider)
+	{
+		for (auto collision : collisions)
+		{
+			if (collision.first == object && collision.second == collider)
+				return false;
+		}
+
+		collisions.push_back(std::pair<std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>>(object, collider));
+		return true;
+	}
+
+	bool CollisionManager::removeCollision(std::shared_ptr<BaseGameObject> object, std::shared_ptr<BaseGameObject> collider)
+	{
+		for (auto it = collisions.begin(); it != collisions.end(); it++)
+		{
+			if (it->first == object && it->second == collider)
+			{
+				collisions.erase(it);
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

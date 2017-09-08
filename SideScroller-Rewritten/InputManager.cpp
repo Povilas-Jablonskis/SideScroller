@@ -74,7 +74,7 @@ namespace Engine
 		return -1;
 	}
 
-	void InputManager::updatePlayerInput(Player* player, float dt)
+	void InputManager::updatePlayerInput(Player* player)
 	{
 		if (player == nullptr) return;
 
@@ -83,7 +83,7 @@ namespace Engine
 			if (getKey(getKeyBinding("Jump")))
 			{
 				player->setSecondState(STATE_JUMPING);
-				player->setVelocity(1, 80.0f);
+				player->setVelocity(1, 100.0f);
 			}
 		}
 
@@ -166,6 +166,105 @@ namespace Engine
 					{
 						player->setFirstState(STATE_IDLE);
 						player->setVelocity(0, 0.0f);
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	void InputManager::simulateInputForEntity(Entity* entity, int key, bool keyPressed)
+	{
+		if (entity == nullptr) return;
+
+		if (entity->getSecondState() == STATE_IDLE)
+		{
+			if (getKeyBinding("Jump") == key && keyPressed)
+			{
+				entity->setSecondState(STATE_JUMPING);
+				entity->setVelocity(1, 100.0f);
+			}
+		}
+
+		auto firstState = entity->getFirstState();
+
+		if (entity->getSecondState() == STATE_CLIMBING)
+		{
+			if (getKeyBinding("Climb") == key && keyPressed)
+				entity->setVelocity(1, 20.0f);
+			else if (getKeyBinding("Duck") == key && keyPressed)
+				entity->setVelocity(1, -20.0f);
+			else
+				entity->setVelocity(1, 0.0f);
+		}
+		else
+		{
+			if (!entity->getIsDucking() && getKeyBinding("Duck") == key && keyPressed)
+			{
+				entity->applyAnimation(entity->getAnimationByIndex("duck"));
+				entity->setIsDucking(true);
+			}
+			else if (entity->getIsDucking() && getKeyBinding("Duck") == key && !keyPressed)
+			{
+				if (entity->getFirstState() == STATE_WALKINGLEFT || entity->getFirstState() == STATE_WALKINGRIGHT)
+					entity->applyAnimation(entity->getAnimationByIndex("walk"));
+				else if (entity->getFirstState() == STATE_IDLE)
+				{
+					if (entity->getSecondState() == STATE_FALLING || entity->getSecondState() == STATE_JUMPING || entity->getSecondState() == STATE_CLIMBING)
+						entity->applyAnimation(entity->getAnimationByIndex("jump"));
+					else if (entity->getSecondState() == STATE_IDLE)
+						entity->applyAnimation(entity->getAnimationByIndex("stand"));
+				}
+				entity->setIsDucking(false);
+			}
+		}
+
+		switch (firstState)
+		{
+			case STATE_IDLE:
+			{
+				if (getKeyBinding("Move Left") == key && keyPressed)
+				{
+					entity->setFirstState(STATE_WALKINGLEFT);
+					entity->setVelocity(0, -20.0f);
+				}
+				else if (getKeyBinding("Move Right") == key && keyPressed)
+				{
+					entity->setFirstState(STATE_WALKINGRIGHT);
+					entity->setVelocity(0, 20.0f);
+				}
+				break;
+			}
+			case STATE_WALKINGRIGHT:
+			{
+				if (getKeyBinding("Move Right") == key && !keyPressed)
+				{
+					if (getKeyBinding("Move Left") == key && keyPressed)
+					{
+						entity->setFirstState(STATE_WALKINGLEFT);
+						entity->setVelocity(0, -20.0f);
+					}
+					else
+					{
+						entity->setFirstState(STATE_IDLE);
+						entity->setVelocity(0, 0.0f);
+					}
+				}
+				break;
+			}
+			case STATE_WALKINGLEFT:
+			{
+				if (getKeyBinding("Move Left") == key && !keyPressed)
+				{
+					if (getKeyBinding("Move Right") == key && keyPressed)
+					{
+						entity->setFirstState(STATE_WALKINGRIGHT);
+						entity->setVelocity(0, 20.0f);
+					}
+					else
+					{
+						entity->setFirstState(STATE_IDLE);
+						entity->setVelocity(0, 0.0f);
 					}
 				}
 				break;

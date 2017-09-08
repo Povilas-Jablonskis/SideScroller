@@ -17,7 +17,8 @@ namespace Engine
 			InputManager();
 			void resetInput();
 			void fixInput();
-			void updatePlayerInput(Player*, float);
+			void updatePlayerInput(Player*);
+			void simulateInputForEntity(Entity*, int, bool);
 			inline bool getLeftMouseState() const { return leftMouseClick; }
 			inline bool getRightMouseState() const { return rightMouseClick; }
 			inline void setLeftMouseState(bool boolean) { leftMouseClick = boolean; }

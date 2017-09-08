@@ -19,7 +19,6 @@
 
 namespace Engine
 {
-	class Entity;
 	class BaseGameObject : public RenderObject
 	{
 		public:
@@ -27,7 +26,8 @@ namespace Engine
 			BaseGameObject(float, float, glm::vec2, glm::vec2, glm::vec4);
 			virtual bool update(float, glm::vec2);
 			void addAnimation(std::string, std::shared_ptr<Animation>);
-			std::function<void(BaseGameObject*, glm::vec2)> onCollision;
+			std::function<void(BaseGameObject*, glm::vec2)> onCollisionEnter;
+			std::function<void(BaseGameObject*, glm::vec2)> onCollisionExit;
 			std::shared_ptr<Animation> getAnimationByIndex(std::string);
 			inline void setVelocity(glm::vec2 _velocity) { velocity = _velocity; };
 			inline void setVelocity(int index, float _velocity) { velocity[index] = _velocity; }
@@ -37,16 +37,13 @@ namespace Engine
 			inline void setNeedsToBeDeleted(bool boolean) { needsToBeDeleted = boolean; }
 			inline bool getNeedsToBeDeleted() const { return needsToBeDeleted; }
 			inline State getFirstState() const { return firstState; }
-			void setFirstState(State);
+			virtual void setFirstState(State);
 			inline State getSecondState() const { return secondState; }
-			void setSecondState(State);
-			inline void setIsDucking(bool boolean) { isDucking = boolean; }
-			inline bool getIsDucking() const { return isDucking; }
-			inline void setCanClimb(bool boolean) { canClimb = boolean; }
-			inline bool getCanClimb() const { return canClimb; }
+			virtual void setSecondState(State);
+			inline void setClimable(bool boolean) { climable = boolean; }
+			inline bool getClimable() const { return climable; }
 		protected:
-			bool canClimb;
-			bool isDucking;
+			bool climable;
 			State firstState;
 			State secondState;
 			bool needsToBeDeleted;

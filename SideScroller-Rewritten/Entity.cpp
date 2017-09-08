@@ -3,41 +3,87 @@
 namespace Engine
 {
 	Entity::Entity(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: BaseGameObject(_width, _height, _position, _velocity, _color), delayBetweenShootsTimer(0.0f)
+		: BaseGameObject(_width, _height, _position, _velocity, _color), isDucking(false), canClimb(false)
 	{
 
 	}
 
-	std::shared_ptr<Addon> Entity::getAddon(std::string index)
+	bool Entity::update(float dt, glm::vec2 gravity)
 	{
-		for (std::vector<std::pair<std::string, std::shared_ptr<Addon>>>::iterator it = addons.begin(); it != addons.end(); it++)
+		if (getSecondState() != STATE_CLIMBING)
 		{
-			if (it->first == index)
-				return it->second;
-		}
-		return nullptr;
-	}
+			velocity += gravity * dt;
 
-	void Entity::removeAddon(std::string index)
-	{
-		for (std::vector<std::pair<std::string, std::shared_ptr<Addon>>>::iterator it = addons.begin(); it != addons.end(); it++)
-		{
-			if (it->first == index)
+			if (getCanClimb())
 			{
-				addons.erase(it);
-				return;
+				setVelocity(1, 0.0f);
+				setSecondState(STATE_CLIMBING);
 			}
+			else if (velocity.y <= 0.0f)
+				setSecondState(STATE_FALLING);
+		}
+		else
+		{
+			if (!getCanClimb())
+				setSecondState(STATE_FALLING);
+		}
+
+		updateAnimation(dt);
+		return getNeedsToBeDeleted();
+	}
+
+	void Entity::setFirstState(State state)
+	{
+		auto lastFirstState = getFirstState();
+
+		if (lastFirstState == state || lastFirstState == STATE_DEAD) return;
+
+		firstState = state;
+
+		if (state != STATE_DEAD && getIsDucking())
+		{
+			applyAnimation(getAnimationByIndex("duck"));
+			return;
+		}
+
+		if (state == STATE_DEAD)
+			applyAnimation(getAnimationByIndex("dead"));
+		if (lastFirstState == STATE_IDLE && (state == STATE_WALKINGLEFT || state == STATE_WALKINGRIGHT))
+			applyAnimation(getAnimationByIndex("walk"));
+		if ((lastFirstState == STATE_WALKINGLEFT || lastFirstState == STATE_WALKINGRIGHT) && state == STATE_IDLE)
+		{
+			auto secondState = getSecondState();
+			if (secondState == STATE_FALLING || secondState == STATE_JUMPING || secondState == STATE_CLIMBING)
+				applyAnimation(getAnimationByIndex("jump"));
+			else if (secondState == STATE_IDLE)
+				applyAnimation(getAnimationByIndex("stand"));
 		}
 	}
 
-	void Entity::addAddon(std::pair<std::string, std::shared_ptr<Addon>> _addon)
+	void Entity::setSecondState(State state)
 	{
-		for (auto addon : addons)
+		auto lastSecondState = getSecondState();
+
+		if (lastSecondState == state || getFirstState() == STATE_DEAD) return;
+
+		secondState = state;
+
+		if (state == STATE_CLIMBING)
 		{
-			if (addon.first == _addon.first) return;
+			setIsDucking(false);
+			applyAnimation(getAnimationByIndex("jump"));
+			return;
 		}
 
-		_addon.second->setPosition(getPosition() + _addon.second->getPositionOffset());
-		addons.push_back(_addon);
+		if (state != STATE_DEAD && getIsDucking())
+		{
+			applyAnimation(getAnimationByIndex("duck"));
+			return;
+		}
+
+		else if ((state == STATE_FALLING || state == STATE_JUMPING || state == STATE_CLIMBING) && getFirstState() == STATE_IDLE)
+			applyAnimation(getAnimationByIndex("jump"));
+		else if (state == STATE_IDLE && getFirstState() == STATE_IDLE)
+			applyAnimation(getAnimationByIndex("stand"));
 	}
 }

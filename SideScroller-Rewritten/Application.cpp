@@ -209,6 +209,10 @@ namespace Engine
 		player->addAnimation("stand", spriteSheetManager->getSpriteSheet("player")->getSprite("stand"));
 		player->addAnimation("jump", spriteSheetManager->getSpriteSheet("player")->getSprite("jump"));
 		player->addAnimation("duck", spriteSheetManager->getSpriteSheet("player")->getSprite("duck"));
+		//player->onCollisionEnter = [](BaseGameObject* collider, glm::vec2 depth)
+		//{
+		//	std::cout << "X: " << depth.x << " Y: " << depth.y << std::endl;
+		//};
 		player->onDeath = [this]()
 		{
 			inputManager->resetInput();
@@ -218,8 +222,7 @@ namespace Engine
 		};
 		player->addObserver(this);
 
-		groundObjects.clear();
-		climbableObjects.clear();
+		objects.clear();
 		unlockableObjects.clear();
 
 		for (int i = 0; i < 2000; i += 32)
@@ -229,17 +232,17 @@ namespace Engine
 			{
 				auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 				object->applyAnimation(spriteSheetManager->getSpriteSheet("bridgeLogs")->getSprite("wholeSpriteSheet"));
-				groundObjects.push_back(std::move(object));
+				objects.push_back(std::move(object));
 
 				object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 				object->applyAnimation(spriteSheetManager->getSpriteSheet("liquidWaterTop_mid")->getSprite("wholeSpriteSheet"));
-				groundObjects.push_back(std::move(object));
+				objects.push_back(std::move(object));
 			}
 			else
 			{
 				auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 				object->applyAnimation(spriteSheetManager->getSpriteSheet("grassMid")->getSprite("wholeSpriteSheet"));
-				groundObjects.push_back(std::move(object));
+				objects.push_back(std::move(object));
 			}
 		}
 
@@ -247,53 +250,64 @@ namespace Engine
 		{
 			auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(188.0f, i), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 			object->applyAnimation(spriteSheetManager->getSpriteSheet("lock_yellow")->getSprite("wholeSpriteSheet"));
-			unlockableObjects.push_back(std::move(object));
+			unlockableObjects.push_back(std::pair<std::string, std::shared_ptr<BaseGameObject>>("keyYellow", std::move(object)));
 		}
 
 		auto object = std::make_shared<BaseGameObject>(24.0f, 53.0f, glm::vec2(16.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("hill_small")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		backgroundObjects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(0.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(32.0f, 124.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("brickWall")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 124.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("boxItemAlt")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 156.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("keyYellow")->getSprite("wholeSpriteSheet"));
-		object->onCollision = [this, object](BaseGameObject* collider, glm::vec2 depth)
+		object->onCollisionEnter = [this, object](BaseGameObject* collider, glm::vec2 depth)
 		{
 			object->setNeedsToBeDeleted(true);
 			unlockableObjects.clear();
 		};
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(96.0f, 124.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("brickWall")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(128.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(5.0f, 70.0f, glm::vec2(134.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(5.0f, 108.0f, glm::vec2(134.0f, 48.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object->setClimable(true);
+		object->onCollisionEnter = [](BaseGameObject* collider, glm::vec2 depth)
+		{
+			auto player = dynamic_cast<Player*>(collider);
+
+			if (player != nullptr)
+				player->setCanClimb(true);
+		};
+		object->onCollisionExit = [](BaseGameObject* collider, glm::vec2 depth)
+		{
+			auto player = dynamic_cast<Player*>(collider);
+
+			if (player != nullptr)
+				player->setCanClimb(false);
+		};
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("ropeVertical")->getSprite("wholeSpriteSheet"));
-		climbableObjects.push_back(std::move(object));
-
-		object = std::make_shared<BaseGameObject>(16.0f, 70.0f, glm::vec2(128.0f, 86.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
-		object->applyAnimation(spriteSheetManager->getSpriteSheet("ropeAttached")->getSprite("wholeSpriteSheet"));
-		climbableObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(252.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("signExit")->getSprite("wholeSpriteSheet"));
-		object->onCollision = [this, object](BaseGameObject* collider, glm::vec2 depth)
+		object->onCollisionEnter = [this, object](BaseGameObject* collider, glm::vec2 depth)
 		{
 			auto player = dynamic_cast<Player*>(collider);
 
@@ -303,26 +317,28 @@ namespace Engine
 				getPlayerUIElement("Level completed")->showMain(false);
 			}
 		};
-		groundObjects.push_back(std::move(object));
-
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(320.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(352.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		groundObjects.push_back(std::move(object));
+		objects.push_back(std::move(object));
 
 		enemies.clear();
 
 		auto enemy = std::make_shared<Enemy>(35.0f, 19.6f, glm::vec2(320.0f, 70.0f), glm::vec2(10.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		enemy->addAnimation("walk", spriteSheetManager->getSpriteSheet("enemy")->getAnimation("slimeWalk"));
 		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("slimeDead"));
-		enemy->setFirstState(STATE_WALKINGRIGHT);
-		enemy->onCollision = [this, enemy](BaseGameObject* collider, glm::vec2 depth)
+		inputManager->simulateInputForEntity(enemy.get(), inputManager->getKeyBinding("Move Right"), true);
+		//inputManager->simulateInputForEntity(enemy.get(), inputManager->getKeyBinding("Jump"), true);
+		enemy->onCollisionEnter = [this, enemy](BaseGameObject* collider, glm::vec2 depth)
 		{
 			auto player = dynamic_cast<Player*>(collider);
+
+			std::cout << "X: " << depth.x << " Y: " << depth.y << std::endl;
 
 			if (player != nullptr )
 			{
@@ -511,15 +527,25 @@ namespace Engine
 						(*it)->setPosition(0, (*it)->getPosition(0) + (((*it)->getVelocity(0) / 2.0f) * dt));
 					else
 						(*it)->setPosition(0, (*it)->getPosition(0) + ((*it)->getVelocity(0) * dt));
-					collisionManager->checkCollision(*it, &groundObjects, true);
-					collisionManager->checkCollision(*it, &unlockableObjects, true);
+					collisionManager->checkCollision(*it, &objects, true);
+					for (auto unlockableObject : unlockableObjects)
+					{
+						if ((*it)->getNeedsToBeDeleted() || (*it)->getFirstState() == STATE_DEAD) continue;
+						if (collisionManager->checkCollision(*it, unlockableObject.second, true))
+							break;
+					}
 
 					if ((*it)->getSecondState() == STATE_CLIMBING && (*it)->getIsDucking())
 						(*it)->setPosition(1, (*it)->getPosition(1) + (((*it)->getVelocity(1) / 2.0f) * dt));
 					else
 						(*it)->setPosition(1, (*it)->getPosition(1) + ((*it)->getVelocity(1) * dt));
-					collisionManager->checkCollision(*it, &groundObjects, false);
-					collisionManager->checkCollision(*it, &unlockableObjects, false);
+					collisionManager->checkCollision(*it, &objects, false);
+					for (auto unlockableObject : unlockableObjects)
+					{
+						if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
+						if (collisionManager->checkCollision(*it, unlockableObject.second, false))
+							break;
+					}
 
 					if ((*it)->update(dt, gravity))
 						it = enemies.erase(it);
@@ -527,17 +553,17 @@ namespace Engine
 						it++;
 				}
 
-				for (std::vector<std::shared_ptr<BaseGameObject>>::iterator it = groundObjects.begin(); it != groundObjects.end();)
+				for (std::vector<std::shared_ptr<BaseGameObject>>::iterator it = objects.begin(); it != objects.end();)
 				{
 					if ((*it)->update(dt, gravity))
-						it = groundObjects.erase(it);
+						it = objects.erase(it);
 					else
 						it++;
 				}
 
-				for (std::vector<std::shared_ptr<BaseGameObject>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end();)
+				for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end();)
 				{
-					if ((*it)->update(dt, gravity))
+					if (it->second->update(dt, gravity))
 						it = unlockableObjects.erase(it);
 					else
 						it++;
@@ -549,28 +575,27 @@ namespace Engine
 					player->setPosition(0, player->getPosition(0) + ((player->getVelocity(0) / 2.0f) * dt));
 				else
 					player->setPosition(0, player->getPosition(0) + (player->getVelocity(0) * dt));
-				collisionManager->checkCollision(player, &groundObjects, true, camera);
-				collisionManager->checkCollision(player, &unlockableObjects, true, camera);
+				collisionManager->checkCollision(player, &objects, true, camera);
+				for (auto unlockableObject : unlockableObjects)
+				{
+					if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
+					if (collisionManager->checkCollision(player, unlockableObject.second, true, camera))
+						break;
+				}
 
 				if (player->getSecondState() == STATE_CLIMBING && player->getIsDucking())
 					player->setPosition(1, player->getPosition(1) + ((player->getVelocity(1) / 2.0f) * dt));
 				else
 					player->setPosition(1, player->getPosition(1) + (player->getVelocity(1) * dt));
-				collisionManager->checkCollision(player, &groundObjects, false, camera);
-				collisionManager->checkCollision(player, &unlockableObjects, false, camera);
+				collisionManager->checkCollision(player, &objects, false, camera);
+				for (auto unlockableObject : unlockableObjects)
+				{
+					if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
+					if (collisionManager->checkCollision(player, unlockableObject.second, false, camera))
+						break;
+				}
 
 				collisionManager->checkCollision(player, &enemies, camera);
-
-				for (auto climbable : climbableObjects)
-				{
-					if (collisionManager->checkCollision(player, climbable, camera))
-					{
-						player->setCanClimb(true);
-						break;
-					}
-					else
-						player->setCanClimb(false);
-				}
 
 				if (player->getPosition(0) < glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
 					camera.x = 0;
@@ -601,12 +626,15 @@ namespace Engine
 		{
 			//Render background
 			renderer->draw(background, camera);
-			//Render climbableObjects
-			renderer->draw(climbableObjects, camera);
-			//Render groundObjects
-			renderer->draw(groundObjects, camera);
+			//Render backgroundObjects
+			renderer->draw(backgroundObjects, camera);
+			//Render objects
+			renderer->draw(objects, camera);
 			//Render unlockableObjects
-			renderer->draw(unlockableObjects, camera);
+			for (auto unlockableObject : unlockableObjects)
+			{
+				renderer->draw(unlockableObject.second, camera);
+			}
 			//Render player
 			renderer->draw(player);
 			//Render enemies
@@ -677,7 +705,7 @@ namespace Engine
 		if (inputManager->getKey(key))
 			inputManager->setKey(key, false);
 
-		inputManager->updatePlayerInput(player.get(), dt);
+		inputManager->updatePlayerInput(player.get());
 	}
 
 	void Application::keyboardInput(unsigned char c, int x, int y)
@@ -734,7 +762,7 @@ namespace Engine
 			inputManager->setKey(key, true);
 		}
 
-		inputManager->updatePlayerInput(player.get(), dt);
+		inputManager->updatePlayerInput(player.get());
 	}
 
 	void Application::specialKeyInputUp(int key, int x, int y)
@@ -767,7 +795,7 @@ namespace Engine
 			}
 		}
 
-		inputManager->updatePlayerInput(player.get(), dt);
+		inputManager->updatePlayerInput(player.get());
 	}
 
 	void Application::specialKeyInput(int key, int x, int y)
@@ -820,7 +848,7 @@ namespace Engine
 			inputManager->resetCurrentEditedKeyBinding();
 		}
 
-		inputManager->updatePlayerInput(player.get(), dt);
+		inputManager->updatePlayerInput(player.get());
 	}
 
 	void Application::motionFunc(int x, int y)

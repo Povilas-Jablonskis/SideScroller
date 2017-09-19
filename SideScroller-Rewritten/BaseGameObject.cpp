@@ -5,14 +5,14 @@
 namespace Engine
 {
 	BaseGameObject::BaseGameObject(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(State::STATE_IDLE), secondState(State::STATE_IDLE), climable(false)
+		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(STATE_IDLE), secondState(STATE_IDLE), climable(false)
 	{
-		onCollisionEnter = [](BaseGameObject* collider, glm::vec2 depth)
+		onCollisionEnter = [](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 
 		};
 
-		onCollisionExit = [](BaseGameObject* collider, glm::vec2 depth)
+		onCollisionExit = [](BaseGameObject* collider)
 		{
 
 		};

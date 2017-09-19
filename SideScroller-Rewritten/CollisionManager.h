@@ -3,6 +3,7 @@
 
 #include "BaseGameObject.h"
 #include "Player.h"
+#include "CollisionInfo.h"
 
 namespace Engine
 {
@@ -11,8 +12,6 @@ namespace Engine
 		public:
 			bool checkCollision(std::shared_ptr<Entity>, std::shared_ptr<BaseGameObject>, bool, glm::vec2 = glm::vec2(0.0f, 0.0f));
 			bool checkCollision(std::shared_ptr<Entity>, std::shared_ptr<BaseGameObject>, glm::vec2 = glm::vec2(0.0f, 0.0f));
-			bool checkCollision(std::shared_ptr<Player>, std::shared_ptr<BaseGameObject>, bool, glm::vec2 = glm::vec2(0.0f, 0.0f));
-			bool checkCollision(std::shared_ptr<Player>, std::shared_ptr<BaseGameObject>, glm::vec2 = glm::vec2(0.0f, 0.0f));
 			template <typename T, typename T2>
 			void checkCollision(std::shared_ptr<T> object, std::vector<std::shared_ptr<T2>>* colliderList, bool checkX, glm::vec2 offset = glm::vec2(0.0f, 0.0f))
 			{
@@ -39,7 +38,7 @@ namespace Engine
 			bool addCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>);
 			bool removeCollision(std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>);
 			std::vector<std::pair<std::shared_ptr<BaseGameObject>, std::shared_ptr<BaseGameObject>>> collisions;
-			glm::vec2 checkCollision(glm::vec4, glm::vec4);
+			CollisionInfo checkCollision(glm::vec4, glm::vec4);
 	};
 }
 #endif

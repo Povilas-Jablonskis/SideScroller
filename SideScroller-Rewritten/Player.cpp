@@ -20,6 +20,20 @@ namespace Engine
 			return false;
 		}
 
+		if (getPosition(0) < glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
+			camera.x = 0;
+		else if (getPosition(0) > 2000.0f - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
+			camera.x = 2000.0f - glutGet(GLUT_INIT_WINDOW_WIDTH);
+		else
+			camera.x = getPosition(0) - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2;
+
+		if (getPosition(1) < glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
+			camera.y = 0;
+		else if (getPosition(1) > 2000.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
+			camera.y = 2000.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT);
+		else
+			camera.y = getPosition(1) - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2;
+
 		Entity::update(dt, gravity);
 		return true;
 	}
@@ -30,7 +44,7 @@ namespace Engine
 		if (getHealth() < 1)
 			onDeath();
 		setVelocity(startVelocity);
-		setPosition(glm::vec2(0.0f, 34.0f));
+		setPosition(glm::vec2(0.0f, 70.0f));
 	}
 
 	void Player::restart()
@@ -38,6 +52,6 @@ namespace Engine
 		setScore(0);
 		setHealth(startHealth);
 		setVelocity(startVelocity);
-		setPosition(glm::vec2(0.0f, 34.0f));
+		setPosition(glm::vec2(0.0f, 70.0f));
 	}
 }

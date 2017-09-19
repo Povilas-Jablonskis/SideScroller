@@ -4,7 +4,7 @@
 namespace Engine
 {
 	RenderObject::RenderObject(float _width, float _height, glm::vec2 _position, glm::vec4 _color)
-		: width(_width), height(_height), position(_position), color(_color), animation(nullptr), animComplete(false), animTimer(0.0f), currentFrame(0), rotationAngle(0.0f), rotationAxis(glm::vec3(0.0, 0.0, 1.0)), lastPosition(_position)
+		: width(_width), height(_height), position(_position), color(_color), animation(nullptr), animComplete(false), animTimer(0.0f), currentFrame(0), rotationAngle(0.0f), rotationAxis(glm::vec3(0.0, 0.0, 1.0))
 	{
 		
 	}
@@ -56,6 +56,23 @@ namespace Engine
 				return height;
 			default:
 				return NULL;
+		}
+	}
+
+	void RenderObject::setSize(int index, float value)
+	{
+		switch (index)
+		{
+			case 0:
+			{
+				width = value;
+				break;
+			}
+			case 1:
+			{
+				height = value;
+				break;
+			}
 		}
 	}
 }

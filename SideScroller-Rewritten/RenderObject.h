@@ -34,37 +34,18 @@ namespace Engine
 			inline float getColor(int index) const{ return color[index]; }
 			inline float getPosition(int index) const { return position[index]; }
 			inline glm::vec2 getPosition() const { return position; }
-			inline float getLastPosition(int index) const { return lastPosition[index]; }
-			inline glm::vec2 getLastPosition() const { return lastPosition; }
 			inline float getRotationAxis(int index) const { return rotationAxis[index]; }
 			inline glm::vec3 getRotationAxis() const { return rotationAxis; }
 			inline float getRotationAngle() const { return rotationAngle; }
 			inline std::shared_ptr<Animation> getAnimation() { return animation; }
 			inline void setBBOXVar(int index, float value) { bbox[index] = value; }
-			inline void setPosition(glm::vec2 _position) { lastPosition = position; position = _position; }
-			inline void setPosition(int index, float _position) { lastPosition[index] = position[index]; position[index] = _position; }
-			inline void setLastPosition(glm::vec2 _position) { lastPosition = _position; }
-			inline void setLastPosition(int index, float _position) { lastPosition[index] = _position; }
+			inline void setPosition(glm::vec2 _position) { position = _position; }
+			inline void setPosition(int index, float _position) { position[index] = _position; }
 			inline void setRotationAngle(float _rotation) { rotationAngle = _rotation; }
 			inline void setRotationAxis(glm::vec3 _rotation) { rotationAxis = _rotation; }
 			inline void setRotationAxis(int index, float _rotation) { rotationAxis[index] = _rotation; }
 			float getSize(int) const;
-			void setSize(int index, float value)
-			{
-				switch (index)
-				{
-					case 0:
-					{
-						width = value;
-						break;
-					}
-					case 1:
-					{
-						height = value;
-						break;
-					}
-				}
-			}
+			void setSize(int, float);
 			virtual void updateAnimation(float);
 			void applyAnimation(std::shared_ptr<Animation>);
 		protected:
@@ -75,7 +56,6 @@ namespace Engine
 			glm::vec3 rotationAxis;
 			float rotationAngle;
 			glm::vec2 position;
-			glm::vec2 lastPosition;
 			float width;
 			float height;
 			glm::vec4 color;

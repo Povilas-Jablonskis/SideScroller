@@ -4,7 +4,7 @@
 namespace Engine
 {
 	Application::Application() 
-		: enemyManager(std::make_shared<EnemyManager>()), spriteSheetManager(std::make_shared<SpriteSheetManager>()), collisionManager(std::make_shared<CollisionManager>()), renderer(std::make_shared<Renderer>()), fontManager(std::make_shared<FontManager>()), inputManager(std::make_shared<InputManager>()), gameState(GameState::NOTSTARTEDYET)
+		: inputManager(std::make_shared<InputManager>()), spriteSheetManager(std::make_shared<SpriteSheetManager>()), collisionManager(std::make_shared<CollisionManager>()), renderer(std::make_shared<Renderer>()), fontManager(std::make_shared<FontManager>()), gameState(STATE_NOT_STARTED_YET)
 	{
 		soundEngine = irrklang::createIrrKlangDevice();
 
@@ -19,12 +19,12 @@ namespace Engine
 		{
 			switch (_event)
 			{
-				case SCORECHANGED:
+				case EVENT_SCORE_CHANGED:
 				{
 					updatePlayerScore();
 					break;
 				}
-				case HEALTHCHANGED:
+				case EVENT_HEALTH_CHANGED:
 				{
 					updatePlayerHealth();
 					break;
@@ -153,7 +153,7 @@ namespace Engine
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Score", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
-		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 255.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f));
+		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f));
 		option->setIsStatic(true);
 		getPlayerUIElement("Score")->addText(std::move(option));
 
@@ -196,7 +196,7 @@ namespace Engine
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Score", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
 		//Score
-		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 255.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f));
+		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f));
 		option->setIsStatic(true);
 		getPlayerUIElement("Score")->addText(std::move(option));
 		getPlayerUIElement("Score")->fixPosition();
@@ -204,19 +204,15 @@ namespace Engine
 
 	void Application::initScene()
 	{
-		player = std::make_shared<Player>(32.0f, 32.0f, glm::vec2(400.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		player = std::make_shared<Player>(32.0f, 32.0f, glm::vec2(500.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		player->addAnimation("walk", spriteSheetManager->getSpriteSheet("player")->getAnimation("walk"));
 		player->addAnimation("stand", spriteSheetManager->getSpriteSheet("player")->getSprite("stand"));
 		player->addAnimation("jump", spriteSheetManager->getSpriteSheet("player")->getSprite("jump"));
 		player->addAnimation("duck", spriteSheetManager->getSpriteSheet("player")->getSprite("duck"));
-		//player->onCollisionEnter = [](BaseGameObject* collider, glm::vec2 depth)
-		//{
-		//	std::cout << "X: " << depth.x << " Y: " << depth.y << std::endl;
-		//};
 		player->onDeath = [this]()
 		{
-			inputManager->resetInput();
-			setState(GameState::ENDED);
+			player->resetInput();
+			setState(STATE_ENDED);
 			currentMenu = getUIElement("Game Over");
 			getUIElement("Game Over")->showMain(false);
 		};
@@ -271,7 +267,7 @@ namespace Engine
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 156.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("keyYellow")->getSprite("wholeSpriteSheet"));
-		object->onCollisionEnter = [this, object](BaseGameObject* collider, glm::vec2 depth)
+		object->onCollisionEnter = [this, object](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			object->setNeedsToBeDeleted(true);
 			unlockableObjects.clear();
@@ -288,14 +284,14 @@ namespace Engine
 
 		object = std::make_shared<BaseGameObject>(5.0f, 108.0f, glm::vec2(134.0f, 48.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->setClimable(true);
-		object->onCollisionEnter = [](BaseGameObject* collider, glm::vec2 depth)
+		object->onCollisionEnter = [](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			auto player = dynamic_cast<Player*>(collider);
 
 			if (player != nullptr)
 				player->setCanClimb(true);
 		};
-		object->onCollisionExit = [](BaseGameObject* collider, glm::vec2 depth)
+		object->onCollisionExit = [](BaseGameObject* collider)
 		{
 			auto player = dynamic_cast<Player*>(collider);
 
@@ -307,12 +303,13 @@ namespace Engine
 
 		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(252.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("signExit")->getSprite("wholeSpriteSheet"));
-		object->onCollisionEnter = [this, object](BaseGameObject* collider, glm::vec2 depth)
+		object->onCollisionEnter = [this, object](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			auto player = dynamic_cast<Player*>(collider);
 
 			if (player != nullptr)
 			{
+				object->setNeedsToBeDeleted(true);
 				Timer::windowsTimer([this]{ getPlayerUIElement("Level completed")->hideMain(); }, 2000);
 				getPlayerUIElement("Level completed")->showMain(false);
 			}
@@ -329,32 +326,29 @@ namespace Engine
 
 		enemies.clear();
 
-		auto enemy = std::make_shared<Enemy>(35.0f, 19.6f, glm::vec2(320.0f, 70.0f), glm::vec2(10.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		auto enemy = std::make_shared<Enemy>(35.0f, 19.6f, glm::vec2(320.0f, 50.0f), glm::vec2(10.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		enemy->addAnimation("walk", spriteSheetManager->getSpriteSheet("enemy")->getAnimation("slimeWalk"));
 		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("slimeDead"));
-		inputManager->simulateInputForEntity(enemy.get(), inputManager->getKeyBinding("Move Right"), true);
-		//inputManager->simulateInputForEntity(enemy.get(), inputManager->getKeyBinding("Jump"), true);
-		enemy->onCollisionEnter = [this, enemy](BaseGameObject* collider, glm::vec2 depth)
+		enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
+		enemy->updateInput(inputManager);
+		enemy->onCollisionEnter = [this, enemy](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			auto player = dynamic_cast<Player*>(collider);
 
-			std::cout << "X: " << depth.x << " Y: " << depth.y << std::endl;
-
 			if (player != nullptr )
 			{
-				if (depth.x > collider->getSize(0) * -1.0f && depth.x < collider->getSize(0) && depth.y > 0.0f && depth.y < 1.0f)
+				if (collisionInfo.side == SIDE_TOP)
 				{
 					player->setScore(player->getScore() + 100);
 					enemy->setVelocity(glm::vec2(0.0f, 50.0f));
 					enemy->setFirstState(STATE_DEAD);
 				}
-				else if (depth.y <= enemy->getSize(1))
+				else
 					player->setNeedsToBeDeleted(true);
 			}
 			else
 			{
-				auto enemyHeight = (int)enemy->getSize(1) * -1;
-				if (depth.y >= 1.0f || (int)depth.y == enemyHeight)
+				if (collisionInfo.side == SIDE_LEFT || collisionInfo.side == SIDE_RIGHT)
 					enemy->setVelocity(0, enemy->getVelocity(0) * -1.0f);
 			}
 		};
@@ -382,7 +376,7 @@ namespace Engine
 			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
 
 			initScene();
-			setState(GameState::STARTED);
+			setState(STATE_STARTED);
 			currentMenu = nullptr;
 			getUIElement("Main Menu")->hideMain();
 		};
@@ -417,7 +411,7 @@ namespace Engine
 			soundEngine->play2D("Sounds/buttonselect/3.wav", GL_FALSE);
 
 			currentMenu = getUIElement("Main Menu");
-			setState(GameState::NOTSTARTEDYET);
+			setState(STATE_NOT_STARTED_YET);
 			getUIElement("Pause Menu")->hideMain();
 			getUIElement("Main Menu")->showMain();
 		};
@@ -517,11 +511,12 @@ namespace Engine
 		while (accumulator >= dt)
 		{
 			inputManager->fixInput();
-			if (getState() == GameState::STARTED)
+			if (getState() == STATE_STARTED)
 			{
+				player->fixInput();
 				player->update(dt, gravity);
 
-				for (std::vector<std::shared_ptr<Enemy>>::iterator it = enemies.begin(); it != enemies.end();)
+				for (std::vector<std::shared_ptr<Entity>>::iterator it = enemies.begin(); it != enemies.end();)
 				{
 					if ((*it)->getIsDucking())
 						(*it)->setPosition(0, (*it)->getPosition(0) + (((*it)->getVelocity(0) / 2.0f) * dt));
@@ -575,11 +570,11 @@ namespace Engine
 					player->setPosition(0, player->getPosition(0) + ((player->getVelocity(0) / 2.0f) * dt));
 				else
 					player->setPosition(0, player->getPosition(0) + (player->getVelocity(0) * dt));
-				collisionManager->checkCollision(player, &objects, true, camera);
+				collisionManager->checkCollision(player, &objects, true, player->getCamera());
 				for (auto unlockableObject : unlockableObjects)
 				{
 					if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
-					if (collisionManager->checkCollision(player, unlockableObject.second, true, camera))
+					if (collisionManager->checkCollision(player, unlockableObject.second, true, player->getCamera()))
 						break;
 				}
 
@@ -587,58 +582,38 @@ namespace Engine
 					player->setPosition(1, player->getPosition(1) + ((player->getVelocity(1) / 2.0f) * dt));
 				else
 					player->setPosition(1, player->getPosition(1) + (player->getVelocity(1) * dt));
-				collisionManager->checkCollision(player, &objects, false, camera);
+				collisionManager->checkCollision(player, &objects, false, player->getCamera());
 				for (auto unlockableObject : unlockableObjects)
 				{
 					if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
-					if (collisionManager->checkCollision(player, unlockableObject.second, false, camera))
+					if (collisionManager->checkCollision(player, unlockableObject.second, false, player->getCamera()))
 						break;
 				}
 
-				collisionManager->checkCollision(player, &enemies, camera);
-
-				if (player->getPosition(0) < glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
-					camera.x = 0;
-				else if (player->getPosition(0) > 2000.0f - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
-					camera.x = 2000.0f - glutGet(GLUT_INIT_WINDOW_WIDTH);
-				else
-					camera.x = player->getPosition(0) - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2;
-
-				if (player->getPosition(1) < glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
-					camera.y = 0;
-				else if (player->getPosition(1) > 2000.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
-					camera.y = 2000.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT);
-				else
-					camera.y = player->getPosition(1) - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2;
-
-				if (player->getPosition(0) < 0.0f)
-					player->setPosition(0, 0.0f);
-
-				if (player->getPosition(1) < 0.0f)
-					player->setPosition(1, 0.0f);
+				collisionManager->checkCollision(player, &enemies, player->getCamera());
 
 				t += dt;
 			}
 			accumulator -= dt;
 		}
 
-		if (getState() == GameState::STARTED)
+		if (getState() == STATE_STARTED)
 		{
 			//Render background
-			renderer->draw(background, camera);
+			renderer->draw(background, player->getCamera());
 			//Render backgroundObjects
-			renderer->draw(backgroundObjects, camera);
+			renderer->draw(backgroundObjects, player->getCamera());
 			//Render objects
-			renderer->draw(objects, camera);
+			renderer->draw(objects, player->getCamera());
 			//Render unlockableObjects
 			for (auto unlockableObject : unlockableObjects)
 			{
-				renderer->draw(unlockableObject.second, camera);
+				renderer->draw(unlockableObject.second, player->getCamera());
 			}
 			//Render player
 			renderer->draw(player);
 			//Render enemies
-			renderer->draw(enemies, camera);
+			renderer->draw(enemies, player->getCamera());
 			//Render & Update player UI
 			for (auto uiElement : playerUI)
 			{
@@ -701,142 +676,109 @@ namespace Engine
 
 	void Application::keyboardInputUp(unsigned char c, int x, int y)
 	{
-		auto key = VkKeyScan(c);
-		if (inputManager->getKey(key))
-			inputManager->setKey(key, false);
+		if (player == nullptr) return;
 
-		inputManager->updatePlayerInput(player.get());
+		auto key = VkKeyScan(c);
+		player->setKey(key, false);
+		player->updateInput(inputManager);
 	}
 
 	void Application::keyboardInput(unsigned char c, int x, int y)
 	{
 		auto key = VkKeyScan(c);
- 		if (!inputManager->getKey(key))
-		{
-			switch (c)
-			{
-				case 27:
-				{
-					if (getState() == GameState::ENDED)
-					{
-						currentMenu = getUIElement("Main Menu");
-						getUIElement("Game Over")->hideMain();
-						getUIElement("Main Menu")->showMain();
-						setState(GameState::NOTSTARTEDYET);
-					}
-					else if (getState() == GameState::PAUSED)
-					{
-						currentMenu = nullptr;
-						getUIElement("Pause Menu")->hideMain();
-						setState(GameState::STARTED);
-					}
-					else if (getState() == GameState::STARTED)
-					{
-						currentMenu = getUIElement("Pause Menu");
-						getUIElement("Pause Menu")->showMain(false);
-						setState(GameState::PAUSED);
-					}
-					else if (getState() == GameState::NOTSTARTEDYET)
-					{
-						if (!inputManager->resetCurrentEditedKeyBinding() && currentMenu != nullptr && currentMenu->getParent() != nullptr)
-						{
-							soundEngine->play2D("Sounds/buttonselect/6.wav", GL_FALSE);
-							currentMenu->hideMain();
-							currentMenu = currentMenu->getParent();
-							currentMenu->showMain();
-						}
-					}
-					break;
-				}
-			}
 
-			auto keyBindings = inputManager->getKeyBindings();
-			auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
-			if (c >= 32 && c < 127 && !std::any_of(keyBindings->begin(), keyBindings->end(), [key](std::pair<std::string, int> element){return element.second == key; }) && currentKeyBinding->second != nullptr)
-			{
-				soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
-				currentKeyBinding->first->second = key;
-				currentKeyBinding->second->setText(virtualKeyCodeToString(key));
-				inputManager->resetCurrentEditedKeyBinding();
-			}
-			inputManager->setKey(key, true);
+		auto keyBindings = inputManager->getKeyBindings();
+		auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
+		if (c >= 32 && c < 127 && !std::any_of(keyBindings->begin(), keyBindings->end(), [key](std::pair<std::string, int> element){return element.second == key; }) && currentKeyBinding->second != nullptr)
+		{
+			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
+			currentKeyBinding->first->second = key;
+			currentKeyBinding->second->setText(virtualKeyCodeToString(key));
+			inputManager->resetCurrentEditedKeyBinding();
 		}
 
-		inputManager->updatePlayerInput(player.get());
+		switch (c)
+		{
+			case 27:
+			{
+				if (getState() == STATE_ENDED)
+				{
+					currentMenu = getUIElement("Main Menu");
+					getUIElement("Game Over")->hideMain();
+					getUIElement("Main Menu")->showMain();
+					setState(STATE_NOT_STARTED_YET);
+				}
+				else if (getState() == STATE_PAUSED)
+				{
+					currentMenu = nullptr;
+					getUIElement("Pause Menu")->hideMain();
+					setState(STATE_STARTED);
+				}
+				else if (getState() == STATE_STARTED)
+				{
+					currentMenu = getUIElement("Pause Menu");
+					getUIElement("Pause Menu")->showMain(false);
+					setState(STATE_PAUSED);
+				}
+				else if (getState() == STATE_NOT_STARTED_YET)
+				{
+					if (!inputManager->resetCurrentEditedKeyBinding() && currentMenu != nullptr && currentMenu->getParent() != nullptr)
+					{
+						soundEngine->play2D("Sounds/buttonselect/6.wav", GL_FALSE);
+						currentMenu->hideMain();
+						currentMenu = currentMenu->getParent();
+						currentMenu->showMain();
+					}
+				}
+				break;
+			}
+		}
+
+		if (player == nullptr) return;
+
+		player->setKey(key, true);
+		player->updateInput(inputManager);
 	}
 
 	void Application::specialKeyInputUp(int key, int x, int y)
 	{
+		if (player == nullptr) return;
+
 		switch (key)
 		{
 			case GLUT_KEY_UP:
 			{
-				if (inputManager->getKey(VK_UP))
-					inputManager->setKey(VK_UP, false);
+				if (player->getKey(VK_UP))
+					player->setKey(VK_UP, false);
 				break;
 			}
 			case GLUT_KEY_DOWN:
 			{
-				if (inputManager->getKey(VK_DOWN))
-					inputManager->setKey(VK_DOWN, false);
+				if (player->getKey(VK_DOWN))
+					player->setKey(VK_DOWN, false);
 				break;
 			}
 			case GLUT_KEY_LEFT:
 			{
-				if (inputManager->getKey(VK_LEFT))
-					inputManager->setKey(VK_LEFT, false);
+				if (player->getKey(VK_LEFT))
+					player->setKey(VK_LEFT, false);
 				break;
 			}
 			case GLUT_KEY_RIGHT:
 			{
-				if (inputManager->getKey(VK_RIGHT))
-					inputManager->setKey(VK_RIGHT, false);
+				if (player->getKey(VK_RIGHT))
+					player->setKey(VK_RIGHT, false);
 				break;
 			}
 		}
 
-		inputManager->updatePlayerInput(player.get());
+		player->updateInput(inputManager);
 	}
 
 	void Application::specialKeyInput(int key, int x, int y)
 	{
 		int c = 0;
 		std::string charText = "";
-		switch (key)
-		{
-			case GLUT_KEY_UP:
-			{
-				charText = virtualKeyCodeToString(VK_UP);
-				c = VK_UP;
-				if (!inputManager->getKey(VK_UP))
-					inputManager->setKey(VK_UP, true);
-				break;
-			}
-			case GLUT_KEY_DOWN:
-			{
-				charText = virtualKeyCodeToString(VK_DOWN);
-				c = VK_DOWN;
-				if (!inputManager->getKey(VK_DOWN))
-					inputManager->setKey(VK_DOWN, true);
-				break;
-			}
-			case GLUT_KEY_LEFT:
-			{
-				charText = virtualKeyCodeToString(VK_LEFT);
-				c = VK_LEFT;
-				if (!inputManager->getKey(VK_LEFT))
-					inputManager->setKey(VK_LEFT, true);
-				break;
-			}
-			case GLUT_KEY_RIGHT:
-			{
-				charText = virtualKeyCodeToString(VK_RIGHT);
-				c = VK_RIGHT;
-				if (!inputManager->getKey(VK_RIGHT))
-					inputManager->setKey(VK_RIGHT, true);
-				break;
-			}
-		}
 
 		auto keyBindings = inputManager->getKeyBindings();
 		auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
@@ -848,7 +790,44 @@ namespace Engine
 			inputManager->resetCurrentEditedKeyBinding();
 		}
 
-		inputManager->updatePlayerInput(player.get());
+		if (player == nullptr) return;
+
+		switch (key)
+		{
+			case GLUT_KEY_UP:
+			{
+				charText = virtualKeyCodeToString(VK_UP);
+				c = VK_UP;
+				if (!player->getKey(VK_UP))
+					player->setKey(VK_UP, true);
+				break;
+			}
+			case GLUT_KEY_DOWN:
+			{
+				charText = virtualKeyCodeToString(VK_DOWN);
+				c = VK_DOWN;
+				if (!player->getKey(VK_DOWN))
+					player->setKey(VK_DOWN, true);
+				break;
+			}
+			case GLUT_KEY_LEFT:
+			{
+				charText = virtualKeyCodeToString(VK_LEFT);
+				c = VK_LEFT;
+				if (!player->getKey(VK_LEFT))
+					player->setKey(VK_LEFT, true);
+				break;
+			}
+			case GLUT_KEY_RIGHT:
+			{
+				charText = virtualKeyCodeToString(VK_RIGHT);
+				c = VK_RIGHT;
+				if (!player->getKey(VK_RIGHT))
+					player->setKey(VK_RIGHT, true);
+				break;
+			}
+		}
+		player->updateInput(inputManager);
 	}
 
 	void Application::motionFunc(int x, int y)
@@ -873,7 +852,6 @@ namespace Engine
 
 		if (button == GLUT_LEFT_BUTTON)
 		{
-			inputManager->setKey(VK_LBUTTON, state == GLUT_DOWN ? true : false);
 			inputManager->setLeftMouseState(state == GLUT_DOWN ? true : false);
 			inputManager->setLastLeftMouseState(state == GLUT_DOWN ? false : true);
 
@@ -884,7 +862,6 @@ namespace Engine
 		}
 		else if (button == GLUT_RIGHT_BUTTON)
 		{
-			inputManager->setKey(VK_RBUTTON, state == GLUT_DOWN ? true : false);
 			inputManager->setRightMouseState(state == GLUT_DOWN ? true : false);
 			inputManager->setLastRightMouseState(state == GLUT_DOWN ? false : true);
 		}

@@ -63,7 +63,6 @@ namespace Engine
 			std::shared_ptr<UIElementBase> background;
 			std::shared_ptr<UIElement> currentMenu;
 
-			glm::vec2 camera = glm::vec2(0.0f, 0.0f);
 			const glm::vec2 gravity = glm::vec2( 0.0f, -120.0f );
 
 			float t;
@@ -74,11 +73,10 @@ namespace Engine
 			std::vector<std::shared_ptr<BaseGameObject>> backgroundObjects;
 			std::vector<std::shared_ptr<BaseGameObject>> objects;
 			std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>> unlockableObjects;
-			std::vector<std::shared_ptr<Enemy>> enemies;
+			std::vector<std::shared_ptr<Entity>> enemies;
 			std::vector<std::pair<std::string, std::shared_ptr<UIElement>>> ui;
 			std::vector<std::pair<std::string, std::shared_ptr<UIElement>>> playerUI;
 
-			std::shared_ptr<EnemyManager> enemyManager;
 			std::shared_ptr<SpriteSheetManager> spriteSheetManager;
 			std::shared_ptr<CollisionManager> collisionManager;
 			std::shared_ptr<Renderer> renderer;

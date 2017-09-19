@@ -5,10 +5,10 @@ namespace Engine
 {
 	enum GameState
 	{
-		NOTSTARTEDYET,
-		STARTED,
-		ENDED,
-		PAUSED
+		STATE_NOT_STARTED_YET,
+		STATE_STARTED,
+		STATE_ENDED,
+		STATE_PAUSED
 	};
 }
 #endif

@@ -98,9 +98,10 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="BaseGameObject.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="CollisionInfo.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="CollisionSides.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="FontManager.h" />
@@ -116,7 +117,6 @@
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="SpriteSheetManager.h" />
     <ClInclude Include="State.h" />
-    <ClInclude Include="StructForTextCache.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />

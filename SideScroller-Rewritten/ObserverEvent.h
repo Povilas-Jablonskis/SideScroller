@@ -5,8 +5,8 @@ namespace Engine
 {
 	enum ObserverEvent
 	{
-		SCORECHANGED,
-		HEALTHCHANGED
+		EVENT_SCORE_CHANGED,
+		EVENT_HEALTH_CHANGED
 	};
 }
 #endif

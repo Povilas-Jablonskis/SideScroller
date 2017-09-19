@@ -5,7 +5,25 @@ namespace Engine
 	Entity::Entity(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
 		: BaseGameObject(_width, _height, _position, _velocity, _color), isDucking(false), canClimb(false)
 	{
+		pressedkeys = new bool[pressedKeyCount];
+		resetInput();
+	}
 
+	void Entity::resetInput()
+	{
+		for (int i = 0; i < pressedKeyCount; i++)
+		{
+			setKey(i, false);
+		}
+	}
+
+	void Entity::fixInput()
+	{
+		for (int i = 0; i < pressedKeyCount; i++)
+		{
+			if (!GetAsyncKeyState(i) && getKey(i))
+				setKey(i, false);
+		}
 	}
 
 	bool Entity::update(float dt, glm::vec2 gravity)
@@ -27,7 +45,6 @@ namespace Engine
 			if (!getCanClimb())
 				setSecondState(STATE_FALLING);
 		}
-
 		updateAnimation(dt);
 		return getNeedsToBeDeleted();
 	}
@@ -85,5 +102,102 @@ namespace Engine
 			applyAnimation(getAnimationByIndex("jump"));
 		else if (state == STATE_IDLE && getFirstState() == STATE_IDLE)
 			applyAnimation(getAnimationByIndex("stand"));
+	}
+
+	void Entity::updateInput(std::shared_ptr<InputManager> inputManager)
+	{
+		if (getSecondState() == STATE_IDLE)
+		{
+			if (getKey(inputManager->getKeyBinding("Jump")))
+			{
+				setSecondState(STATE_JUMPING);
+				setVelocity(1, 100.0f);
+			}
+		}
+
+		auto firstState = getFirstState();
+
+		if (getSecondState() == STATE_CLIMBING)
+		{
+			if (getKey(inputManager->getKeyBinding("Climb")))
+				setVelocity(1, 20.0f);
+			else if (getKey(inputManager->getKeyBinding("Duck")))
+				setVelocity(1, -20.0f);
+			else
+				setVelocity(1, 0.0f);
+		}
+		else
+		{
+			if (!getIsDucking() && getKey(inputManager->getKeyBinding("Duck")))
+			{
+				applyAnimation(getAnimationByIndex("duck"));
+				setIsDucking(true);
+			}
+			else if (getIsDucking() && !getKey(inputManager->getKeyBinding("Duck")))
+			{
+				if (getFirstState() == STATE_WALKINGLEFT || getFirstState() == STATE_WALKINGRIGHT)
+					applyAnimation(getAnimationByIndex("walk"));
+				else if (getFirstState() == STATE_IDLE)
+				{
+					if (getSecondState() == STATE_FALLING || getSecondState() == STATE_JUMPING || getSecondState() == STATE_CLIMBING)
+						applyAnimation(getAnimationByIndex("jump"));
+					else if (getSecondState() == STATE_IDLE)
+						applyAnimation(getAnimationByIndex("stand"));
+				}
+				setIsDucking(false);
+			}
+		}
+
+		switch (firstState)
+		{
+			case STATE_IDLE:
+			{
+				if (getKey(inputManager->getKeyBinding("Move Left")))
+				{
+					setFirstState(STATE_WALKINGLEFT);
+					setVelocity(0, -20.0f);
+				}
+				else if (getKey(inputManager->getKeyBinding("Move Right")))
+				{
+					setFirstState(STATE_WALKINGRIGHT);
+					setVelocity(0, 20.0f);
+				}
+				break;
+			}
+			case STATE_WALKINGRIGHT:
+			{
+				if (!getKey(inputManager->getKeyBinding("Move Right")))
+				{
+					if (getKey(inputManager->getKeyBinding("Move Left")))
+					{
+						setFirstState(STATE_WALKINGLEFT);
+						setVelocity(0, -20.0f);
+					}
+					else
+					{
+						setFirstState(STATE_IDLE);
+						setVelocity(0, 0.0f);
+					}
+				}
+				break;
+			}
+			case STATE_WALKINGLEFT:
+			{
+				if (!getKey(inputManager->getKeyBinding("Move Left")))
+				{
+					if (getKey(inputManager->getKeyBinding("Move Right")))
+					{
+						setFirstState(STATE_WALKINGRIGHT);
+						setVelocity(0, 20.0f);
+					}
+					else
+					{
+						setFirstState(STATE_IDLE);
+						setVelocity(0, 0.0f);
+					}
+				}
+				break;
+			}
+		}
 	}
 }

@@ -10,6 +10,7 @@
 #include "RenderObject.h"
 #include "Addon.h"
 #include "State.h"
+#include "CollisionInfo.h"
 
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
@@ -26,8 +27,8 @@ namespace Engine
 			BaseGameObject(float, float, glm::vec2, glm::vec2, glm::vec4);
 			virtual bool update(float, glm::vec2);
 			void addAnimation(std::string, std::shared_ptr<Animation>);
-			std::function<void(BaseGameObject*, glm::vec2)> onCollisionEnter;
-			std::function<void(BaseGameObject*, glm::vec2)> onCollisionExit;
+			std::function<void(BaseGameObject*, CollisionInfo)> onCollisionEnter;
+			std::function<void(BaseGameObject*)> onCollisionExit;
 			std::shared_ptr<Animation> getAnimationByIndex(std::string);
 			inline void setVelocity(glm::vec2 _velocity) { velocity = _velocity; };
 			inline void setVelocity(int index, float _velocity) { velocity[index] = _velocity; }

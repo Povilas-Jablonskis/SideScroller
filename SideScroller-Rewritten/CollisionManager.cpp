@@ -52,7 +52,7 @@ namespace Engine
 		};
 	}
 
-	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX, glm::vec2 offset) // AABB - AABB collision
+	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX) // AABB - AABB collision
 	{
 		if (object->getNeedsToBeDeleted() || object->getFirstState() == STATE_DEAD) return false;
 		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
@@ -62,9 +62,19 @@ namespace Engine
 		CollisionInfo collisionInfo;
 
 		if (player == nullptr)
-			collisionInfo = checkCollision(glm::vec4(object->getPosition() - offset, object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
+		{
+			if (checkX)
+				collisionInfo = checkCollision(glm::vec4(object->getPosition(0), object->getLastPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition(), collider->getSize(0), collider->getSize(1)));
+			else
+				collisionInfo = checkCollision(glm::vec4(object->getLastPosition(0), object->getPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition(), collider->getSize(0), collider->getSize(1)));
+		}
 		else
-			collisionInfo = checkCollision(glm::vec4(object->getPosition(), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
+		{
+			if (checkX)
+				collisionInfo = checkCollision(glm::vec4(object->getPosition(0), object->getLastPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(player->getCamera(0), player->getLastCamera(1)), collider->getSize(0), collider->getSize(1)));
+			else
+				collisionInfo = checkCollision(glm::vec4(object->getLastPosition(0), object->getPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(player->getLastCamera(0), player->getCamera(1)), collider->getSize(0), collider->getSize(1)));
+		}
 
 		if (collisionInfo.depth == glm::vec2(0.0f, 0.0f))
 		{
@@ -96,38 +106,6 @@ namespace Engine
 
 			object->setVelocity(1, 0.0f);
 			object->setPosition(1, object->getPosition(1) + collisionInfo.depth.y);
-		}
-		return true;
-	}
-
-	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, glm::vec2 offset) // AABB - AABB collision
-	{
-		if (object->getNeedsToBeDeleted() || object->getFirstState() == STATE_DEAD) return false;
-		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
-
-		auto player = dynamic_cast<Player*>(object.get());
-
-		CollisionInfo collisionInfo;
-
-		if (player == nullptr)
-			collisionInfo = checkCollision(glm::vec4(object->getPosition() - offset, object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
-		else
-			collisionInfo = checkCollision(glm::vec4(object->getPosition(), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - offset, collider->getSize(0), collider->getSize(1)));
-
-		if (collisionInfo.depth == glm::vec2(0.0f, 0.0f))
-		{
-			if (removeCollision(object, collider))
-			{
-				collider->onCollisionExit(object.get());
-				object->onCollisionExit(collider.get());
-			}
-			return false;
-		}
-
-		if (addCollision(object, collider))
-		{
-			collider->onCollisionEnter(object.get(), collisionInfo);
-			object->onCollisionEnter(collider.get(), collisionInfo);
 		}
 		return true;
 	}

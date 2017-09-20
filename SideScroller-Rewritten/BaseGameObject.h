@@ -34,6 +34,8 @@ namespace Engine
 			inline void setVelocity(int index, float _velocity) { velocity[index] = _velocity; }
 			inline float getVelocity(int index) { return velocity[index]; }
 			inline glm::vec2 getVelocity() { return velocity; }
+			inline float getLastPosition(int index) { return lastPosition[index]; }
+			inline glm::vec2 getLastPosition() { return lastPosition; }
 			std::function<void()> onDeath;
 			inline void setNeedsToBeDeleted(bool boolean) { needsToBeDeleted = boolean; }
 			inline bool getNeedsToBeDeleted() const { return needsToBeDeleted; }
@@ -50,6 +52,7 @@ namespace Engine
 			bool needsToBeDeleted;
 			std::vector<std::pair<std::string, std::shared_ptr<Animation>>> animations;
 			glm::vec2 velocity;
+			glm::vec2 lastPosition;
 	};
 }
 #endif

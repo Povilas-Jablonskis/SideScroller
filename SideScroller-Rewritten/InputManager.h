@@ -33,6 +33,7 @@ namespace Engine
 			bool resetCurrentEditedKeyBinding();
 			std::pair<std::vector<std::pair<std::string, int>>::iterator, std::shared_ptr<Text>> currentEditedKeyBinding;
 			std::vector<std::pair<std::string, int>> keyBindings;
+		private:
 			glm::vec2 lastMousePosition;
 			bool lastLeftMouseClick;
 			bool leftMouseClick;

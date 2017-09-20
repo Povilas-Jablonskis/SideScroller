@@ -45,6 +45,19 @@ namespace Engine
 			if (!getCanClimb())
 				setSecondState(STATE_FALLING);
 		}
+
+		lastPosition = position;
+
+		if (getIsDucking())
+			position.x += (getVelocity(0) / 2.0f) * dt;
+		else
+			position.x += getVelocity(0) * dt;
+
+		if (getSecondState() == STATE_CLIMBING && getIsDucking())
+			position.y += (getVelocity(1) / 2.0f) * dt;
+		else
+			position.y += getVelocity(1) * dt;
+
 		updateAnimation(dt);
 		return getNeedsToBeDeleted();
 	}

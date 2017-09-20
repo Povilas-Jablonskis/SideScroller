@@ -7,7 +7,7 @@
 namespace Engine
 {
 	Player::Player(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: Entity(_width, _height, _position, _velocity, _color), startHealth(3), health(startHealth), score(0), startVelocity(_velocity)
+		: Entity(_width, _height, _position, _velocity, _color), startHealth(3), health(startHealth), score(0), startVelocity(_velocity), camera(glm::vec2(0.0f, 0.0f)), lastCamera(glm::vec2(0.0f, 0.0f))
 	{
 	}
 
@@ -19,6 +19,10 @@ namespace Engine
 			respawn();
 			return false;
 		}
+
+		Entity::update(dt, gravity);
+
+		lastCamera = camera;
 
 		if (getPosition(0) < glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
 			camera.x = 0;
@@ -34,7 +38,6 @@ namespace Engine
 		else
 			camera.y = getPosition(1) - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2;
 
-		Entity::update(dt, gravity);
 		return true;
 	}
 
@@ -44,7 +47,8 @@ namespace Engine
 		if (getHealth() < 1)
 			onDeath();
 		setVelocity(startVelocity);
-		setPosition(glm::vec2(0.0f, 70.0f));
+		position = glm::vec2(0.0f, 70.0f);
+		lastPosition = glm::vec2(0.0f, 70.0f);
 	}
 
 	void Player::restart()
@@ -52,6 +56,33 @@ namespace Engine
 		setScore(0);
 		setHealth(startHealth);
 		setVelocity(startVelocity);
-		setPosition(glm::vec2(0.0f, 70.0f));
+		position = glm::vec2(0.0f, 70.0f);
+		lastPosition = glm::vec2(0.0f, 70.0f);
+	}
+
+	float Player::getCamera(int index) const
+	{
+		switch (index)
+		{
+			case 0:
+				return camera.x;
+			case 1:
+				return camera.y;
+			default:
+				return NULL;
+		}
+	}
+
+	float Player::getLastCamera(int index) const
+	{
+		switch (index)
+		{
+			case 0:
+				return lastCamera.x;
+			case 1:
+				return lastCamera.y;
+			default:
+				return NULL;
+		}
 	}
 }

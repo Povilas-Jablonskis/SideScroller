@@ -5,7 +5,7 @@
 namespace Engine
 {
 	BaseGameObject::BaseGameObject(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(STATE_IDLE), secondState(STATE_IDLE), climable(false)
+		: RenderObject(_width, _height, _position, _color), velocity(_velocity), needsToBeDeleted(false), firstState(STATE_IDLE), secondState(STATE_IDLE), climable(false), lastPosition(_position)
 	{
 		onCollisionEnter = [](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{

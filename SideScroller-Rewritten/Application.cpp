@@ -513,39 +513,24 @@ namespace Engine
 			inputManager->fixInput();
 			if (getState() == STATE_STARTED)
 			{
-				player->fixInput();
-				player->update(dt, gravity);
-
 				for (std::vector<std::shared_ptr<Entity>>::iterator it = enemies.begin(); it != enemies.end();)
 				{
-					if ((*it)->getIsDucking())
-						(*it)->setPosition(0, (*it)->getPosition(0) + (((*it)->getVelocity(0) / 2.0f) * dt));
-					else
-						(*it)->setPosition(0, (*it)->getPosition(0) + ((*it)->getVelocity(0) * dt));
-					collisionManager->checkCollision(*it, &objects, true);
-					for (auto unlockableObject : unlockableObjects)
-					{
-						if ((*it)->getNeedsToBeDeleted() || (*it)->getFirstState() == STATE_DEAD) continue;
-						if (collisionManager->checkCollision(*it, unlockableObject.second, true))
-							break;
-					}
-
-					if ((*it)->getSecondState() == STATE_CLIMBING && (*it)->getIsDucking())
-						(*it)->setPosition(1, (*it)->getPosition(1) + (((*it)->getVelocity(1) / 2.0f) * dt));
-					else
-						(*it)->setPosition(1, (*it)->getPosition(1) + ((*it)->getVelocity(1) * dt));
-					collisionManager->checkCollision(*it, &objects, false);
-					for (auto unlockableObject : unlockableObjects)
-					{
-						if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
-						if (collisionManager->checkCollision(*it, unlockableObject.second, false))
-							break;
-					}
-
 					if ((*it)->update(dt, gravity))
 						it = enemies.erase(it);
 					else
+					{
+						//Collision detection
+
+						collisionManager->checkCollision(*it, &objects);
+						std::vector<std::shared_ptr<BaseGameObject>> tempVector;
+
+						for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it2 = unlockableObjects.begin(); it2 != unlockableObjects.end(); ++it2)
+							tempVector.push_back(it2->second);
+
+						collisionManager->checkCollision(*it, &tempVector);
+
 						it++;
+					}
 				}
 
 				for (std::vector<std::shared_ptr<BaseGameObject>>::iterator it = objects.begin(); it != objects.end();)
@@ -564,33 +549,20 @@ namespace Engine
 						it++;
 				}
 
+				player->fixInput();
+				player->update(dt, gravity);
+
 				//Collision detection
 
-				if (player->getIsDucking())
-					player->setPosition(0, player->getPosition(0) + ((player->getVelocity(0) / 2.0f) * dt));
-				else
-					player->setPosition(0, player->getPosition(0) + (player->getVelocity(0) * dt));
-				collisionManager->checkCollision(player, &objects, true, player->getCamera());
-				for (auto unlockableObject : unlockableObjects)
-				{
-					if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
-					if (collisionManager->checkCollision(player, unlockableObject.second, true, player->getCamera()))
-						break;
-				}
+				collisionManager->checkCollision(player, &objects);
 
-				if (player->getSecondState() == STATE_CLIMBING && player->getIsDucking())
-					player->setPosition(1, player->getPosition(1) + ((player->getVelocity(1) / 2.0f) * dt));
-				else
-					player->setPosition(1, player->getPosition(1) + (player->getVelocity(1) * dt));
-				collisionManager->checkCollision(player, &objects, false, player->getCamera());
-				for (auto unlockableObject : unlockableObjects)
-				{
-					if (unlockableObject.second->getNeedsToBeDeleted() || unlockableObject.second->getFirstState() == STATE_DEAD) continue;
-					if (collisionManager->checkCollision(player, unlockableObject.second, false, player->getCamera()))
-						break;
-				}
+				std::vector<std::shared_ptr<BaseGameObject>> tempVector;
 
-				collisionManager->checkCollision(player, &enemies, player->getCamera());
+				for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end(); ++it)
+					tempVector.push_back(it->second);
+
+				collisionManager->checkCollision(player, &tempVector);
+				collisionManager->checkCollision(player, &enemies);
 
 				t += dt;
 			}

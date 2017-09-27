@@ -41,7 +41,7 @@ namespace Engine
 
 	void BaseGameObject::addAnimation(std::string index, std::shared_ptr<Animation> animation)
 	{
-		for (std::vector<std::pair<std::string, std::shared_ptr<Animation>>>::iterator it = animations.begin(); it != animations.end(); it++)
+		for (std::vector<std::pair<std::string, std::shared_ptr<Animation>>>::iterator it = animations.begin(); it != animations.end(); ++it)
 		{
 			if (it->first == index)
 				return;

@@ -431,7 +431,7 @@ namespace Engine
 		//Controls
 		auto keybindings = inputManager->getKeyBindings();
 		size_t i = 0;
-		for (std::vector<std::pair<std::string, int>>::iterator it = keybindings->begin(); it != keybindings->end(); it++)
+		for (std::vector<std::pair<std::string, int>>::iterator it = keybindings->begin(); it != keybindings->end(); ++it)
 		{
 			options = std::make_shared<Text>(it->first + ": ", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(20.0f, 80.0f - (10 * i)));
 			options->setIsStatic(true);
@@ -529,7 +529,7 @@ namespace Engine
 
 						collisionManager->checkCollision(*it, &tempVector);
 
-						it++;
+						++it;
 					}
 				}
 
@@ -538,7 +538,7 @@ namespace Engine
 					if ((*it)->update(dt, gravity))
 						it = objects.erase(it);
 					else
-						it++;
+						++it;
 				}
 
 				for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end();)
@@ -546,7 +546,7 @@ namespace Engine
 					if (it->second->update(dt, gravity))
 						it = unlockableObjects.erase(it);
 					else
-						it++;
+						++it;
 				}
 
 				player->fixInput();
@@ -884,7 +884,7 @@ namespace Engine
 
 	void Application::erasePlayerUIElement(std::string index)
 	{
-		for (std::vector<std::pair<std::string, std::shared_ptr<UIElement>>>::iterator it = playerUI.begin(); it != playerUI.end(); it++)
+		for (std::vector<std::pair<std::string, std::shared_ptr<UIElement>>>::iterator it = playerUI.begin(); it != playerUI.end(); ++it)
 		{
 			if (it->first == index)
 			{

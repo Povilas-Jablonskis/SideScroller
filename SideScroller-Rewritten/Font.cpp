@@ -13,7 +13,7 @@ namespace Engine
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-		for (GLubyte c = 0; c < 128; c++)
+		for (GLubyte c = 0; c < 128; ++c)
 		{
 			// Load character glyph 
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER))

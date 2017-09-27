@@ -55,7 +55,7 @@ namespace Engine
 		std::vector<int> tempVector;
 		auto cache = font->getCharacterList();
 
-		for (std::string::const_iterator c = text.begin(); c != text.end(); c++)
+		for (std::string::const_iterator c = text.begin(); c != text.end(); ++c)
 		{
 			Character ch = cache->at(*c);
 

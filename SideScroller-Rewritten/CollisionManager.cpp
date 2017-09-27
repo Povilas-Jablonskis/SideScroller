@@ -124,7 +124,7 @@ namespace Engine
 
 	bool CollisionManager::removeCollision(std::shared_ptr<BaseGameObject> object, std::shared_ptr<BaseGameObject> collider)
 	{
-		for (auto it = collisions.begin(); it != collisions.end(); it++)
+		for (auto it = collisions.begin(); it != collisions.end(); ++it)
 		{
 			if (it->first == object && it->second == collider)
 			{

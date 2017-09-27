@@ -101,7 +101,7 @@ namespace Engine
 
 					auto cache = text->getCachedCharacters();
 
-					for (std::vector<std::pair<GLuint, std::vector<GLfloat>>>::iterator it = cache.begin(); it != cache.end(); it++)
+					for (std::vector<std::pair<GLuint, std::vector<GLfloat>>>::iterator it = cache.begin(); it != cache.end(); ++it)
 					{
 						// Render glyph texture over quad
 						glBindTexture(GL_TEXTURE_2D, it->first);
@@ -133,7 +133,7 @@ namespace Engine
 
 				auto cache = text->getCachedCharacters();
 
-				for (std::vector<std::pair<GLuint, std::vector<GLfloat>>>::iterator it = cache.begin(); it != cache.end(); it++)
+				for (std::vector<std::pair<GLuint, std::vector<GLfloat>>>::iterator it = cache.begin(); it != cache.end(); ++it)
 				{
 					// Render glyph texture over quad
 					glBindTexture(GL_TEXTURE_2D, it->first);

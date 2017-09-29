@@ -7,6 +7,7 @@
 #include "GL/freeglut.h"
 #include <functional>
 #include <memory>
+#include <algorithm>
 
 #include "RenderObject.h"
 
@@ -37,7 +38,7 @@ namespace Engine
 			virtual void onHoverExitFuncDefaults();
 		protected:
 			float originalWidth;
-			float originalHeigth;
+			float originalHeight;
 			glm::vec2 positionPercents;
 			bool isStatic;
 			bool gotMousedHovered;

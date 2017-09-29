@@ -3,6 +3,8 @@
 
 namespace Engine
 {
+	const glm::vec2 Application::gravity = glm::vec2(0.0f, -120.0f);
+
 	Application::Application() 
 		: inputManager(std::make_shared<InputManager>()), spriteSheetManager(std::make_shared<SpriteSheetManager>()), collisionManager(std::make_shared<CollisionManager>()), renderer(std::make_shared<Renderer>()), fontManager(std::make_shared<FontManager>()), gameState(STATE_NOT_STARTED_YET)
 	{
@@ -442,7 +444,7 @@ namespace Engine
 				soundEngine->play2D("Sounds/buttonselect/3.wav", GL_FALSE);
 
 				inputManager->resetCurrentEditedKeyBinding();
-				inputManager->setCurrentEditedKeyBinding(std::pair<std::vector<std::pair<std::string, int>>::iterator, std::shared_ptr<Text>>(it, options));
+				inputManager->setCurrentEditedKeyBinding(CurrentEditedKeyBinding(it, options));
 				options->setIsStatic(true);
 				options->changeColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 			};
@@ -521,13 +523,13 @@ namespace Engine
 					{
 						//Collision detection
 
-						collisionManager->checkCollision(*it, &objects);
+						collisionManager->checkCollision(*it, objects);
 						std::vector<std::shared_ptr<BaseGameObject>> tempVector;
 
 						for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it2 = unlockableObjects.begin(); it2 != unlockableObjects.end(); ++it2)
 							tempVector.push_back(it2->second);
 
-						collisionManager->checkCollision(*it, &tempVector);
+						collisionManager->checkCollision(*it, tempVector);
 
 						++it;
 					}
@@ -554,15 +556,15 @@ namespace Engine
 
 				//Collision detection
 
-				collisionManager->checkCollision(player, &objects);
+				collisionManager->checkCollision(player, objects);
 
 				std::vector<std::shared_ptr<BaseGameObject>> tempVector;
 
 				for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end(); ++it)
 					tempVector.push_back(it->second);
 
-				collisionManager->checkCollision(player, &tempVector);
-				collisionManager->checkCollision(player, &enemies);
+				collisionManager->checkCollision(player, tempVector);
+				collisionManager->checkCollision(player, enemies);
 
 				t += dt;
 			}
@@ -591,8 +593,8 @@ namespace Engine
 			{
 				uiElement.second->update(dt);
 				listOfAllElements.push_back(uiElement.second);
-				uiElement.second->GetAllChildrenElements(&listOfAllElements);
-				uiElement.second->GetAllChildrenTexts(&listOfAllTexts);
+				uiElement.second->GetAllChildrenElements(listOfAllElements);
+				uiElement.second->GetAllChildrenTexts(listOfAllTexts);
 			}
 
 			renderer->draw(listOfAllElements);
@@ -607,8 +609,8 @@ namespace Engine
 		{
 			uiElement.second->update(dt);
 			listOfAllElements.push_back(uiElement.second);
-			uiElement.second->GetAllChildrenElements(&listOfAllElements);
-			uiElement.second->GetAllChildrenTexts(&listOfAllTexts);
+			uiElement.second->GetAllChildrenElements(listOfAllElements);
+			uiElement.second->GetAllChildrenTexts(listOfAllTexts);
 		}
 
 		renderer->draw(listOfAllElements);
@@ -659,9 +661,8 @@ namespace Engine
 	{
 		auto key = VkKeyScan(c);
 
-		auto keyBindings = inputManager->getKeyBindings();
 		auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
-		if (c >= 32 && c < 127 && !std::any_of(keyBindings->begin(), keyBindings->end(), [key](std::pair<std::string, int> element){return element.second == key; }) && currentKeyBinding->second != nullptr)
+		if (c >= 32 && c < 127 && !inputManager->isKeyBindingUsed(key) && currentKeyBinding->second != nullptr)
 		{
 			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
 			currentKeyBinding->first->second = key;
@@ -752,9 +753,8 @@ namespace Engine
 		int c = 0;
 		std::string charText = "";
 
-		auto keyBindings = inputManager->getKeyBindings();
 		auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
-		if (c != 0 && !std::any_of(keyBindings->begin(), keyBindings->end(), [c](std::pair<std::string, int> element){return element.second == c; }) && currentKeyBinding->second != nullptr)
+		if (c != 0 && !inputManager->isKeyBindingUsed(key) && currentKeyBinding->second != nullptr)
 		{
 			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
 			currentKeyBinding->first->second = c;
@@ -860,7 +860,7 @@ namespace Engine
 		return szName;
 	}
 
-	std::shared_ptr<UIElement> Application::getUIElement(std::string index)
+	std::shared_ptr<UIElement> Application::getUIElement(const std::string& index)
 	{
 		for (auto uiElement : ui)
 		{
@@ -871,7 +871,7 @@ namespace Engine
 		return nullptr;
 	}
 
-	std::shared_ptr<UIElement> Application::getPlayerUIElement(std::string index)
+	std::shared_ptr<UIElement> Application::getPlayerUIElement(const std::string& index)
 	{
 		for (auto uiElement : playerUI)
 		{
@@ -882,7 +882,7 @@ namespace Engine
 		return nullptr;
 	}
 
-	void Application::erasePlayerUIElement(std::string index)
+	void Application::erasePlayerUIElement(const std::string& index)
 	{
 		for (std::vector<std::pair<std::string, std::shared_ptr<UIElement>>>::iterator it = playerUI.begin(); it != playerUI.end(); ++it)
 		{

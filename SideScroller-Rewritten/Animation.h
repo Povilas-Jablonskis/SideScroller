@@ -18,13 +18,13 @@ namespace Engine
 			inline void setLoopStatus(bool _status) { loop = _status; }
 			inline bool getLoopStatus() const { return loop; }
 			inline void addSprite(glm::vec4 sprite) { sprites.push_back(sprite); }
-			inline std::vector<glm::vec4>* getAnimation() { return &sprites; }
+			inline const std::vector<glm::vec4>& getAnimation() { return sprites; }
 			GLuint getSpriteSheetTexture() const { return spriteSheetTexture; }
 			int getSpriteSheetSize(int) const;
 			void loadFromFile(const std::string&);
 		private:
 			int spriteSheetWidth;
-			int spriteSheetHeigth;
+			int spriteSheetHeight;
 			GLuint spriteSheetTexture;
 			std::vector<glm::vec4> sprites;
 			bool loop;

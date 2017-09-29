@@ -1,6 +1,5 @@
 #include "Text.h"
 #include <cctype>
-#include <algorithm>
 
 namespace Engine
 {
@@ -57,7 +56,7 @@ namespace Engine
 
 		for (std::string::const_iterator c = text.begin(); c != text.end(); ++c)
 		{
-			Character ch = cache->at(*c);
+			Character ch = cache.at(*c);
 
 			GLfloat xpos = position.x + ch.Bearing.x;
 			GLfloat ypos = position.y - (ch.Size.y - ch.Bearing.y);

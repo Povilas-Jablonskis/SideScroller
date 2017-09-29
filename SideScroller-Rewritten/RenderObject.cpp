@@ -15,20 +15,20 @@ namespace Engine
 
 		auto sprites = animation->getAnimation();
 
-		if (sprites->size() > 1)
+		if (sprites.size() > 1)
 		{
 			animTimer += dt;
 			if (animTimer > animation->getDelay())
 			{
 				animTimer = 0;
 				currentFrame++;
-				if (currentFrame >= sprites->size())
+				if (currentFrame >= sprites.size())
 				{
 					if (animation->getLoopStatus())
 						currentFrame = 0;
 					else
 					{
-						currentFrame = (sprites->size() - 1);
+						currentFrame = (sprites.size() - 1);
 						animComplete = true;
 					}
 				}

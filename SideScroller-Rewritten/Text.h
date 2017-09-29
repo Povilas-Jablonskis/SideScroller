@@ -27,7 +27,7 @@ namespace Engine
 			inline std::shared_ptr<Font> getFont() const { return font; }
 			inline std::vector<std::pair<GLuint, std::vector<GLfloat>>> getCachedCharacters() { return cachedCharacters; }
 			inline std::string getText() const { return text; }
-			inline void setText(std::string newtext) { needUpdate = true; text = newtext; }
+			inline void setText(const std::string& newtext) { needUpdate = true; text = newtext; }
 			inline void setText(char newtext) { needUpdate = true; text = newtext; }
 			inline void setPosition(glm::vec2 _position) { needUpdate = true; position = _position; }
 			inline void setPosition(int index, float _position) { needUpdate = true; position[index] = _position; }

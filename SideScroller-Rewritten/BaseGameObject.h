@@ -26,10 +26,10 @@ namespace Engine
 			~BaseGameObject();
 			BaseGameObject(float, float, glm::vec2, glm::vec2, glm::vec4);
 			virtual bool update(float, glm::vec2);
-			void addAnimation(std::string, std::shared_ptr<Animation>);
+			void addAnimation(const std::string&, std::shared_ptr<Animation>);
 			std::function<void(BaseGameObject*, CollisionInfo)> onCollisionEnter;
 			std::function<void(BaseGameObject*)> onCollisionExit;
-			std::shared_ptr<Animation> getAnimationByIndex(std::string);
+			std::shared_ptr<Animation> getAnimationByIndex(const std::string&);
 			inline void setVelocity(glm::vec2 _velocity) { velocity = _velocity; };
 			inline void setVelocity(int index, float _velocity) { velocity[index] = _velocity; }
 			inline float getVelocity(int index) { return velocity[index]; }

@@ -44,9 +44,9 @@ namespace Engine
 			void specialKeyInput(int, int, int);
 			void specialKeyInputUp(int, int, int);
 		private:
-			std::shared_ptr<UIElement> getUIElement(std::string);
-			std::shared_ptr<UIElement> getPlayerUIElement(std::string);
-			void erasePlayerUIElement(std::string);
+			std::shared_ptr<UIElement> getUIElement(const std::string&);
+			std::shared_ptr<UIElement> getPlayerUIElement(const std::string&);
+			void erasePlayerUIElement(const std::string&);
 
 			float randomFloat(float, float);
 
@@ -63,7 +63,7 @@ namespace Engine
 			std::shared_ptr<UIElementBase> background;
 			std::shared_ptr<UIElement> currentMenu;
 
-			const glm::vec2 gravity = glm::vec2( 0.0f, -120.0f );
+			static const glm::vec2 gravity;
 
 			float t;
 			float dt;

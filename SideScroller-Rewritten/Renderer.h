@@ -22,26 +22,25 @@ namespace Engine
 			inline GLuint getTextVBO() const { return textVBO; }
 			inline GLuint getTextVAO() const { return textVAO; }
 			template <typename T>
-			void draw(std::vector<std::shared_ptr<T>> vector, glm::vec2 offset = glm::vec2(0.0f, 0.0f))
+			void draw(const std::vector<std::shared_ptr<T>>& elements, glm::vec2 offset = glm::vec2(0.0f, 0.0f))
 			{
 				auto program = getShaderProgram("shader");
 				float windowWidth = (float)(glutGet(GLUT_WINDOW_WIDTH));
-				float windowHeigth = (float)(glutGet(GLUT_WINDOW_HEIGHT));
+				float windowHeight = (float)(glutGet(GLUT_WINDOW_HEIGHT));
 
 				int offsetLocation = glGetUniformLocation(program, "color");
 				int offsetLocation2 = glGetUniformLocation(program, "renderMode");
 				int offsetLocation3 = glGetUniformLocation(program, "spriteCoordinates");
 				int offsetLocation6 = glGetUniformLocation(program, "projection");
 				int offsetLocation7 = glGetUniformLocation(program, "model");
-				glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeigth, 0.0f, 1.0f);
+				glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight, 0.0f, 1.0f);
 				glBindVertexArray(vao);
 				glUseProgram(program);
-				for (auto element : vector)
+				for (auto element : elements)
 				{
 					if (element->getColor(3) == 0.0f) continue;
 
 					auto animation = element->getAnimation();
-					auto sprites = animation->getAnimation();
 
 					glm::mat4 model;
 					model = glm::translate(model, glm::vec3(element->getPosition() - offset, 0.0f));
@@ -56,7 +55,9 @@ namespace Engine
 
 					if (animation != nullptr)
 					{
-						auto currentSprite = sprites->at(element->getCurrentFrame());
+						auto sprites = animation->getAnimation();
+
+						auto currentSprite = sprites.at(element->getCurrentFrame());
 						glBindTexture(GL_TEXTURE_2D, animation->getSpriteSheetTexture());
 
 						glUniform1f(offsetLocation2, 1.0f);
@@ -78,20 +79,19 @@ namespace Engine
 			{
 				auto program = getShaderProgram("shader");
 				float windowWidth = (float)(glutGet(GLUT_WINDOW_WIDTH));
-				float windowHeigth = (float)(glutGet(GLUT_WINDOW_HEIGHT));
+				float windowHeight = (float)(glutGet(GLUT_WINDOW_HEIGHT));
 
 				int offsetLocation = glGetUniformLocation(program, "color");
 				int offsetLocation2 = glGetUniformLocation(program, "renderMode");
 				int offsetLocation3 = glGetUniformLocation(program, "spriteCoordinates");
 				int offsetLocation6 = glGetUniformLocation(program, "projection");
 				int offsetLocation7 = glGetUniformLocation(program, "model");
-				glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeigth, 0.0f, 1.0f);
+				glm::mat4 projection = glm::ortho(0.0f, windowWidth, 0.0f, windowHeight, 0.0f, 1.0f);
 				glBindVertexArray(vao);
 				glUseProgram(program);
 				if (element->getColor(3) == 0.0f) return;
 
 				auto animation = element->getAnimation();
-				auto sprites = animation->getAnimation();
 
 				glm::mat4 model;
 				model = glm::translate(model, glm::vec3(element->getPosition() - offset, 0.0f));
@@ -106,7 +106,9 @@ namespace Engine
 
 				if (animation != nullptr)
 				{
-					auto currentSprite = sprites->at(element->getCurrentFrame());
+					auto sprites = animation->getAnimation();
+
+					auto currentSprite = sprites.at(element->getCurrentFrame());
 					glBindTexture(GL_TEXTURE_2D, animation->getSpriteSheetTexture());
 
 					glUniform1f(offsetLocation2, 1.0f);

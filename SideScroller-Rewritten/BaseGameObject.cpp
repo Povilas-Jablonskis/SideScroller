@@ -39,7 +39,7 @@ namespace Engine
 		return getNeedsToBeDeleted();
 	}
 
-	void BaseGameObject::addAnimation(std::string index, std::shared_ptr<Animation> animation)
+	void BaseGameObject::addAnimation(const std::string& index, std::shared_ptr<Animation> animation)
 	{
 		for (std::vector<std::pair<std::string, std::shared_ptr<Animation>>>::iterator it = animations.begin(); it != animations.end(); ++it)
 		{
@@ -50,7 +50,7 @@ namespace Engine
 		animations.push_back(std::pair<std::string, std::shared_ptr<Animation>>(index, animation));
 	}
 
-	std::shared_ptr<Animation> BaseGameObject::getAnimationByIndex(std::string index)
+	std::shared_ptr<Animation> BaseGameObject::getAnimationByIndex(const std::string& index)
 	{
 		for (auto animation : animations)
 		{

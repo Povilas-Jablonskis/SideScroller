@@ -2,7 +2,7 @@
 
 namespace Engine
 {
-	Animation::Animation(GLuint _spriteSheetTexture, int width, int height) : loop(false), delay(1.0f / 60.f), spriteSheetTexture(_spriteSheetTexture), spriteSheetHeigth(height), spriteSheetWidth(width)
+	Animation::Animation(GLuint _spriteSheetTexture, int width, int height) : loop(false), delay(1.0f / 60.f), spriteSheetTexture(_spriteSheetTexture), spriteSheetHeight(height), spriteSheetWidth(width)
 	{
 
 	}
@@ -26,7 +26,7 @@ namespace Engine
 
 		sprites.clear();
 		spriteSheetWidth = width;
-		spriteSheetHeigth = height;
+		spriteSheetHeight = height;
 		sprites.push_back(glm::vec4(width, height, width, height));
 	}
 
@@ -37,7 +37,7 @@ namespace Engine
 			case 0:
 				return spriteSheetWidth;
 			case 1:
-				return spriteSheetHeigth;
+				return spriteSheetHeight;
 			default:
 				return NULL;
 		}

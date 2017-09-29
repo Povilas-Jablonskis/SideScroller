@@ -8,7 +8,7 @@ namespace Engine
 		setLastLeftMouseState(false);
 		setRightMouseState(false);
 		setLastRightMouseState(false);
-		setCurrentEditedKeyBinding(std::pair<std::vector<std::pair<std::string, int>>::iterator, std::shared_ptr<Text>>(keyBindings.end(), nullptr));
+		setCurrentEditedKeyBinding(CurrentEditedKeyBinding(keyBindings.end(), nullptr));
 	}
 
 	bool InputManager::resetCurrentEditedKeyBinding()

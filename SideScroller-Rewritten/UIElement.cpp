@@ -1,5 +1,4 @@
 #include "UIElement.h"
-#include <algorithm>
 
 namespace Engine
 {
@@ -69,25 +68,25 @@ namespace Engine
 		}
 	}
 
-	void UIElement::GetAllChildrenElements(std::vector<std::shared_ptr<UIElement>>* out)
+	void UIElement::GetAllChildrenElements(std::vector<std::shared_ptr<UIElement>>& out)
 	{
 		auto tempList = getElements();
 
-		for (std::vector<std::shared_ptr<UIElement>>::iterator it = tempList->begin(); it != tempList->end(); ++it)
+		for (std::vector<std::shared_ptr<UIElement>>::iterator it = tempList.begin(); it != tempList.end(); ++it)
 		{
-			out->push_back(*it);
+			out.push_back(*it);
 			(*it)->GetAllChildrenElements(out);
 		}
 	}
 
-	void UIElement::GetAllChildrenTexts(std::vector<std::shared_ptr<Text>>* out)
+	void UIElement::GetAllChildrenTexts(std::vector<std::shared_ptr<Text>>& out)
 	{
 		auto tempList = getElements();
 		auto tempTextList = getTexts();
 
-		out->insert(out->end(), tempTextList->begin(), tempTextList->end());
+		out.insert(out.end(), tempTextList.begin(), tempTextList.end());
 
-		for (std::vector<std::shared_ptr<UIElement>>::iterator it = tempList->begin(); it != tempList->end(); ++it)
+		for (std::vector<std::shared_ptr<UIElement>>::iterator it = tempList.begin(); it != tempList.end(); ++it)
 			(*it)->GetAllChildrenTexts(out);
 	}
 

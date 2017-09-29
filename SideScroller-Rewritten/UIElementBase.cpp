@@ -3,7 +3,7 @@
 namespace Engine
 {
 	UIElementBase::UIElementBase(float _width, float _height, glm::vec2 _position, glm::vec4 _color, glm::vec2 _positionPerc) :
-		RenderObject(_width, _height, _position, _color), gotMousedHovered(false), isStatic(false), positionPercents(_positionPerc), originalWidth(width), originalHeigth(height)
+		RenderObject(_width, _height, _position, _color), gotMousedHovered(false), isStatic(false), positionPercents(_positionPerc), originalWidth(width), originalHeight(height)
 	{
 		initFuncs();
 	}
@@ -68,7 +68,7 @@ namespace Engine
 		}
 
 		width = originalWidth * (temPos.x / (float)glutGet(GLUT_INIT_WINDOW_WIDTH));
-		height = originalHeigth * (temPos.y / (float)(glutGet(GLUT_INIT_WINDOW_HEIGHT)));
+		height = originalHeight * (temPos.y / (float)(glutGet(GLUT_INIT_WINDOW_HEIGHT)));
 	}
 
 	bool UIElementBase::checkIfCollides(glm::vec2 colCoordinates)

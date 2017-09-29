@@ -85,7 +85,6 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SpriteManager.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="SpriteSheetManager.cpp" />
     <ClCompile Include="Subject.cpp" />
@@ -113,7 +112,6 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="SpriteManager.h" />
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="SpriteSheetManager.h" />
     <ClInclude Include="State.h" />

@@ -22,14 +22,14 @@ namespace Engine
 			void hideMain(bool = true);
 			void showMain(bool = true);
 			void fixPosition(UIElementBase* = nullptr);
-			inline std::vector<std::shared_ptr<UIElement>>* getElements() { return &elements; }
-			inline std::vector<std::shared_ptr<Text>>* getTexts() { return &texts; }
+			inline const std::vector<std::shared_ptr<UIElement>>& getElements() { return elements; }
+			inline const std::vector<std::shared_ptr<Text>>& getTexts() { return texts; }
 			inline void setParent(std::shared_ptr<UIElement> _parent) { parentMenu = _parent; }
 			inline std::shared_ptr<UIElement> getParent() const { return parentMenu; }
 			void checkIfMouseHoverThis(glm::vec2);
 			void checkForMouseClickOnThis(bool, bool, glm::vec2);
-			void GetAllChildrenElements(std::vector<std::shared_ptr<UIElement>>*);
-			void GetAllChildrenTexts(std::vector<std::shared_ptr<Text>>*);
+			void GetAllChildrenElements(std::vector<std::shared_ptr<UIElement>>&);
+			void GetAllChildrenTexts(std::vector<std::shared_ptr<Text>>&);
 			void onHoverEnterFuncDefaults();
 			void onHoverExitFuncDefaults();
 		private:

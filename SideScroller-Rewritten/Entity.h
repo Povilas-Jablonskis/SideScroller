@@ -26,7 +26,7 @@ namespace Engine
 			inline void setKey(char key, bool boolean) { pressedkeys[key] = boolean; }
 			inline void setKey(int key, bool boolean) { pressedkeys[key] = boolean; }
 		protected:
-			const int pressedKeyCount = 256;
+			static const int pressedKeyCount = 256;
 			bool* pressedkeys;
 			bool canClimb;
 			bool isDucking;

@@ -84,7 +84,7 @@ namespace Engine
 		shaders.push_back(std::pair<std::string, std::shared_ptr<Shader>>(name, shader));
 	}
 
-	void Renderer::draw(std::vector<std::shared_ptr<Text>> vector)
+	void Renderer::draw(const std::vector<std::shared_ptr<Text>>& vector)
 	{
 		auto program = getShaderProgram("textshader");
 		int offsetLocation = glGetUniformLocation(program, "color");

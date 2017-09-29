@@ -25,7 +25,7 @@ namespace Engine
 			Text(const char, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2);
 			void update(float);
 			inline std::shared_ptr<Font> getFont() const { return font; }
-			inline std::vector<std::pair<GLuint, std::vector<GLfloat>>> getCachedCharacters() { return cachedCharacters; }
+			inline const std::vector<std::pair<GLuint, std::vector<GLfloat>>>& getCachedCharacters() { return cachedCharacters; }
 			inline std::string getText() const { return text; }
 			inline void setText(const std::string& newtext) { needUpdate = true; text = newtext; }
 			inline void setText(char newtext) { needUpdate = true; text = newtext; }

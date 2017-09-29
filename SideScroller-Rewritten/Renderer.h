@@ -124,7 +124,7 @@ namespace Engine
 				glUseProgram(0);
 				glBindVertexArray(0);
 			}
-			void draw(std::vector<std::shared_ptr<Text>>);
+			void draw(const std::vector<std::shared_ptr<Text>>&);
 			void draw(std::shared_ptr<Text>);
 		private:
 			GLuint vbo, vao, ebo;

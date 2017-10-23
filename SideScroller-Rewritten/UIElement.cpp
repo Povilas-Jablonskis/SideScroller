@@ -43,16 +43,6 @@ namespace Engine
 		}
 	}
 
-	void UIElement::onHoverEnterFuncDefaults()
-	{
-
-	}
-
-	void UIElement::onHoverExitFuncDefaults()
-	{
-
-	}
-
 	void UIElement::fixPosition(UIElementBase* _parent)
 	{
 		UIElementBase::fixPosition(_parent);

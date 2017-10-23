@@ -46,7 +46,7 @@ namespace Engine
 			inline void setRotationAxis(int index, float _rotation) { rotationAxis[index] = _rotation; }
 			float getSize(int) const;
 			void setSize(int, float);
-			virtual void updateAnimation(float);
+			void updateAnimation(float);
 			void applyAnimation(std::shared_ptr<Animation>);
 		protected:
 			size_t currentFrame;

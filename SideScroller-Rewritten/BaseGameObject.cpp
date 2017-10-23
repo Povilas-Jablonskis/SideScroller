@@ -64,12 +64,16 @@ namespace Engine
 	{
 		auto lastFirstState = getFirstState();
 
-		if (lastFirstState == state) return;
+		if (lastFirstState == state || lastFirstState == STATE_DEAD) return;
 
 		firstState = state;
 
 		if (state == STATE_DEAD)
+		{
 			applyAnimation(getAnimationByIndex("dead"));
+			return;
+		}
+
 		if (lastFirstState == STATE_IDLE && (state == STATE_WALKINGLEFT || state == STATE_WALKINGRIGHT))
 			applyAnimation(getAnimationByIndex("walk"));
 		if ((lastFirstState == STATE_WALKINGLEFT || lastFirstState == STATE_WALKINGRIGHT) && state == STATE_IDLE)
@@ -86,11 +90,9 @@ namespace Engine
 	{
 		auto lastSecondState = getSecondState();
 
-		if (lastSecondState == state) return;
+		if (lastSecondState == state || getFirstState() == STATE_DEAD) return;
 
 		secondState = state;
-
-		if (getFirstState() == STATE_DEAD) return;
 
 		if ((state == STATE_FALLING || state == STATE_JUMPING) && getFirstState() == STATE_IDLE)
 			applyAnimation(getAnimationByIndex("jump"));

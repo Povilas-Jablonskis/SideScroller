@@ -79,16 +79,6 @@ namespace Engine
 		return false;
 	}
 
-	void UIElementBase::onHoverEnterFuncDefaults()
-	{
-
-	}
-
-	void UIElementBase::onHoverExitFuncDefaults()
-	{
-
-	}
-
 	void UIElementBase::checkIfMouseHoverThis(glm::vec2 lastMousePosition)
 	{
 		if (color.a == 0.0f) return;
@@ -98,8 +88,7 @@ namespace Engine
 			if (!gotMousedHovered)
 			{
 				if(!isStatic)
-					onHoverEnterFuncDefaults();
-				onHoverEnterFunc();
+					onHoverEnterFunc();
 				gotMousedHovered = true;
 			}
 		}
@@ -108,8 +97,7 @@ namespace Engine
 			if (gotMousedHovered)
 			{
 				if (!isStatic)
-					onHoverExitFuncDefaults();
-				onHoverExitFunc();
+					onHoverExitFunc();
 				gotMousedHovered = false;
 			}
 		}

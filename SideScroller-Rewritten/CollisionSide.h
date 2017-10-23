@@ -1,9 +1,9 @@
-#ifndef _collisionSidesH
-#define _collisionSidesH
+#ifndef _collisionSideH
+#define _collisionSideH
 
 namespace Engine
 {
-	enum CollisionSides
+	enum CollisionSide
 	{
 		SIDE_NONE,
 		SIDE_TOP,

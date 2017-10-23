@@ -52,29 +52,17 @@ namespace Engine
 		};
 	}
 
-	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX) // AABB - AABB collision
+	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX, glm::vec2 lastCamera, glm::vec2 camera) // AABB - AABB collision
 	{
 		if (object->getNeedsToBeDeleted() || object->getFirstState() == STATE_DEAD) return false;
 		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
 
-		auto player = dynamic_cast<Player*>(object.get());
-
 		CollisionInfo collisionInfo;
 
-		if (player == nullptr)
-		{
-			if (checkX)
-				collisionInfo = checkCollision(glm::vec4(object->getPosition(0), object->getLastPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition(), collider->getSize(0), collider->getSize(1)));
-			else
-				collisionInfo = checkCollision(glm::vec4(object->getLastPosition(0), object->getPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition(), collider->getSize(0), collider->getSize(1)));
-		}
+		if (checkX)
+			collisionInfo = checkCollision(glm::vec4(object->getPosition(0), object->getLastPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(camera.x, lastCamera.y), collider->getSize(0), collider->getSize(1)));
 		else
-		{
-			if (checkX)
-				collisionInfo = checkCollision(glm::vec4(object->getPosition(0), object->getLastPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(player->getCamera(0), player->getLastCamera(1)), collider->getSize(0), collider->getSize(1)));
-			else
-				collisionInfo = checkCollision(glm::vec4(object->getLastPosition(0), object->getPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(player->getLastCamera(0), player->getCamera(1)), collider->getSize(0), collider->getSize(1)));
-		}
+			collisionInfo = checkCollision(glm::vec4(object->getLastPosition(0), object->getPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(lastCamera.x, camera.y), collider->getSize(0), collider->getSize(1)));
 
 		if (collisionInfo.depth == glm::vec2(0.0f, 0.0f))
 		{

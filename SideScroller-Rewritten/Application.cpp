@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	const glm::vec2 Application::gravity = glm::vec2(0.0f, -120.0f);
+	const glm::vec2 Application::gravity = glm::vec2(15.0f, -120.0f);
 
 	Application::Application() 
 		: inputManager(std::make_shared<InputManager>()), spriteSheetManager(std::make_shared<SpriteSheetManager>()), collisionManager(std::make_shared<CollisionManager>()), renderer(std::make_shared<Renderer>()), fontManager(std::make_shared<FontManager>()), gameState(STATE_NOT_STARTED_YET)
@@ -39,7 +39,6 @@ namespace Engine
 		inputManager->setKeyBinding("Move Right", 0x44);
 		inputManager->setKeyBinding("Jump", VK_SPACE);
 		inputManager->setKeyBinding("Duck", 0x53);
-		inputManager->setKeyBinding("Climb", 0x57);
 
 		renderer->addShader("shader", std::make_shared<Shader>("shader.vert", "shader.frag"));
 		renderer->addShader("textshader", std::make_shared<Shader>("textshader.vert", "textshader.frag"));
@@ -49,7 +48,7 @@ namespace Engine
 
 		initSpriteSheets();
 
-		background = std::make_shared<UIElementBase>(2000.0f, 2000.0f, glm::vec2(0.0f, 0.0f), glm::vec4(208.0f, 244.0f, 247.0f, 1.0f), glm::vec2(0.0f, 0.0f));
+		background = std::make_shared<UIElementBase>(2016.0f, 2016.0f, glm::vec2(0.0f, 0.0f), glm::vec4(208.0f, 244.0f, 247.0f, 1.0f), glm::vec2(0.0f, 0.0f));
 
 		initGameUI();
 		currentMenu = getUIElement("Main Menu");
@@ -104,6 +103,14 @@ namespace Engine
 
 		enemySpriteSheet->getAnimation("slimeWalk")->setLoopStatus(true);
 		enemySpriteSheet->getAnimation("slimeWalk")->setDelay(0.1f);
+
+		sprites.clear();
+		sprites.push_back(enemySpriteSheet->getSpriteAsVector("flyFly1"));
+		sprites.push_back(enemySpriteSheet->getSpriteAsVector("flyFly2"));
+		enemySpriteSheet->makeAnimation("flyFly", sprites);
+
+		enemySpriteSheet->getAnimation("flyFly")->setLoopStatus(true);
+		enemySpriteSheet->getAnimation("flyFly")->setDelay(0.1f);
 
 		playerSpriteSheet->loadSpriteSheet("Player/p1_spritesheet.png");
 		playerSpriteSheet->loadSpritesFromXml("Player/p1_spritesheet.xml");
@@ -206,7 +213,7 @@ namespace Engine
 
 	void Application::initScene()
 	{
-		player = std::make_shared<Player>(32.0f, 32.0f, glm::vec2(500.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		player = std::make_shared<Player>(32.0f, 32.0f, glm::vec2(0.0f, 64.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		player->addAnimation("walk", spriteSheetManager->getSpriteSheet("player")->getAnimation("walk"));
 		player->addAnimation("stand", spriteSheetManager->getSpriteSheet("player")->getSprite("stand"));
 		player->addAnimation("jump", spriteSheetManager->getSpriteSheet("player")->getSprite("jump"));
@@ -223,90 +230,72 @@ namespace Engine
 		objects.clear();
 		unlockableObjects.clear();
 
-		for (int i = 0; i < 2000; i += 32)
+		for (int i = 32; i < 256; i += 32)
 		{
-			auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
-			if (i > 32 && i < 128)
-			{
-				auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
-				object->applyAnimation(spriteSheetManager->getSpriteSheet("bridgeLogs")->getSprite("wholeSpriteSheet"));
-				objects.push_back(std::move(object));
-
-				object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
-				object->applyAnimation(spriteSheetManager->getSpriteSheet("liquidWaterTop_mid")->getSprite("wholeSpriteSheet"));
-				objects.push_back(std::move(object));
-			}
-			else
-			{
-				auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, -16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
-				object->applyAnimation(spriteSheetManager->getSpriteSheet("grassMid")->getSprite("wholeSpriteSheet"));
-				objects.push_back(std::move(object));
-			}
-		}
-
-		for (int i = 16; i < 256; i += 32)
-		{
-			auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(188.0f, i), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+			auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(192.0f, i), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 			object->applyAnimation(spriteSheetManager->getSpriteSheet("lock_yellow")->getSprite("wholeSpriteSheet"));
 			unlockableObjects.push_back(std::pair<std::string, std::shared_ptr<BaseGameObject>>("keyYellow", std::move(object)));
 		}
 
-		auto object = std::make_shared<BaseGameObject>(24.0f, 53.0f, glm::vec2(16.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		auto object = std::make_shared<BaseGameObject>(24.0f, 53.0f, glm::vec2(0.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("hill_small")->getSprite("wholeSpriteSheet"));
 		backgroundObjects.push_back(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(0.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(0.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(32.0f, 124.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(32.0f, 128.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("brickWall")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 124.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 128.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("boxItemAlt")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 156.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(64.0f, 160.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("keyYellow")->getSprite("wholeSpriteSheet"));
 		object->onCollisionEnter = [this, object](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
+			auto player = dynamic_cast<Player*>(collider);
+			if (player == nullptr || object->getNeedsToBeDeleted()) return;
 			object->setNeedsToBeDeleted(true);
 			unlockableObjects.clear();
 		};
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(96.0f, 124.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(96.0f, 128.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("brickWall")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(128.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(128.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(5.0f, 108.0f, glm::vec2(134.0f, 48.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(5.0f, 96.0f, glm::vec2(128.0f, 64.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->setClimable(true);
 		object->onCollisionEnter = [](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
-			auto player = dynamic_cast<Player*>(collider);
+			auto entity = dynamic_cast<Entity*>(collider);
 
-			if (player != nullptr)
-				player->setCanClimb(true);
+			if (entity != nullptr && !entity->getCanClimb())
+				entity->setCanClimb(true);
 		};
 		object->onCollisionExit = [](BaseGameObject* collider)
 		{
-			auto player = dynamic_cast<Player*>(collider);
+			auto entity = dynamic_cast<Entity*>(collider);
 
-			if (player != nullptr)
-				player->setCanClimb(false);
+			if (entity != nullptr && entity->getCanClimb())
+				entity->setCanClimb(false);
 		};
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("ropeVertical")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(252.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(256.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("signExit")->getSprite("wholeSpriteSheet"));
 		object->onCollisionEnter = [this, object](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
+			if (object->getNeedsToBeDeleted()) return;
 			auto player = dynamic_cast<Player*>(collider);
 
 			if (player != nullptr)
@@ -316,19 +305,47 @@ namespace Engine
 				getPlayerUIElement("Level completed")->showMain(false);
 			}
 		};
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(320.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(352.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(352.0f, 16.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(384.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
-		objects.push_back(std::move(object));
+		addObjectToList(std::move(object));
+
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(512.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
+		addObjectToList(std::move(object));
+
+		object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(576.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
+		addObjectToList(std::move(object));
+
+		for (int i = 0; i < 2016; i += 32)
+		{
+			if (i > 32 && i < 128)
+			{
+				auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+				object->applyAnimation(spriteSheetManager->getSpriteSheet("bridgeLogs")->getSprite("wholeSpriteSheet"));
+				addObjectToList(std::move(object));
+
+				object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+				object->applyAnimation(spriteSheetManager->getSpriteSheet("liquidWaterTop_mid")->getSprite("wholeSpriteSheet"));
+				addObjectToList(std::move(object));
+			}
+			else
+			{
+				auto object = std::make_shared<BaseGameObject>(32.0f, 32.0f, glm::vec2(i, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+				object->applyAnimation(spriteSheetManager->getSpriteSheet("grassMid")->getSprite("wholeSpriteSheet"));
+				addObjectToList(std::move(object));
+			}
+		}
 
 		enemies.clear();
 
-		auto enemy = std::make_shared<Enemy>(35.0f, 19.6f, glm::vec2(320.0f, 50.0f), glm::vec2(10.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		auto enemy = std::make_shared<Enemy>(35.0f, 20.0f, glm::vec2(64.0f, 32.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		enemy->addAnimation("walk", spriteSheetManager->getSpriteSheet("enemy")->getAnimation("slimeWalk"));
 		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("slimeDead"));
 		enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
@@ -354,6 +371,14 @@ namespace Engine
 					enemy->setVelocity(0, enemy->getVelocity(0) * -1.0f);
 			}
 		};
+		enemies.push_back(std::move(enemy));
+
+		enemy = std::make_shared<Enemy>(35.0f, 20.0f, glm::vec2(320.0f, 300.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		enemy->addAnimation("walk", spriteSheetManager->getSpriteSheet("enemy")->getAnimation("flyFly"));
+		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("flyDead"));
+		enemy->setSecondState(STATE_FLYING);
+		enemy->setKey(inputManager->getKeyBinding("Move Left"), true);
+		enemy->updateInput(inputManager);
 		enemies.push_back(std::move(enemy));
 
 		initPlayerUI();
@@ -446,7 +471,7 @@ namespace Engine
 				inputManager->resetCurrentEditedKeyBinding();
 				inputManager->setCurrentEditedKeyBinding(CurrentEditedKeyBinding(it, options));
 				options->setIsStatic(true);
-				options->changeColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+				options->onHoverEnterFunc();
 			};
 			Controls->addText(std::move(options));
 			i++;
@@ -515,7 +540,7 @@ namespace Engine
 			inputManager->fixInput();
 			if (getState() == STATE_STARTED)
 			{
-				for (std::vector<std::shared_ptr<Entity>>::iterator it = enemies.begin(); it != enemies.end();)
+				for (std::vector<std::shared_ptr<Enemy>>::iterator it = enemies.begin(); it != enemies.end();)
 				{
 					if ((*it)->update(dt, gravity))
 						it = enemies.erase(it);
@@ -556,15 +581,15 @@ namespace Engine
 
 				//Collision detection
 
-				collisionManager->checkCollision(player, objects);
+				collisionManager->checkCollision(player, objects, player->getLastCamera(), player->getCamera());
 
 				std::vector<std::shared_ptr<BaseGameObject>> tempVector;
 
 				for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end(); ++it)
 					tempVector.push_back(it->second);
 
-				collisionManager->checkCollision(player, tempVector);
-				collisionManager->checkCollision(player, enemies);
+				collisionManager->checkCollision(player, tempVector, player->getLastCamera(), player->getCamera());
+				collisionManager->checkCollision(player, enemies, player->getLastCamera(), player->getCamera());
 
 				t += dt;
 			}
@@ -892,18 +917,5 @@ namespace Engine
 				return;
 			}
 		}
-	}
-
-	float Application::randomFloat(float min, float max)
-	{
-		// this  function assumes max > min, you may want 
-		// more robust error checking for a non-debug build
-		assert(max > min);
-		float random = ((float)rand()) / (float)RAND_MAX;
-
-		// generate (in your case) a float between 0 and (4.5-.78)
-		// then add .78, giving you a float between .78 and 4.5
-		float range = max - min;
-		return (random*range) + min;
 	}
 }

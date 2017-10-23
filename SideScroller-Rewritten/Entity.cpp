@@ -28,10 +28,11 @@ namespace Engine
 
 	bool Entity::update(float dt, glm::vec2 gravity)
 	{
-		if (getSecondState() != STATE_CLIMBING)
-		{
-			velocity += gravity * dt;
+		if ((getSecondState() != STATE_FLYING && getSecondState() != STATE_CLIMBING) || (getSecondState() == STATE_FLYING && getFirstState() == STATE_DEAD))
+			velocity.y += gravity.y * dt;
 
+		if (getSecondState() == STATE_IDLE || getSecondState() == STATE_JUMPING || getSecondState() == STATE_FALLING)
+		{
 			if (getCanClimb())
 			{
 				setVelocity(1, 0.0f);
@@ -40,7 +41,7 @@ namespace Engine
 			else if (velocity.y <= 0.0f)
 				setSecondState(STATE_FALLING);
 		}
-		else
+		else if (getSecondState() == STATE_CLIMBING)
 		{
 			if (!getCanClimb())
 				setSecondState(STATE_FALLING);
@@ -70,14 +71,18 @@ namespace Engine
 
 		firstState = state;
 
-		if (state != STATE_DEAD && getIsDucking())
+		if (state == STATE_DEAD)
+		{
+			applyAnimation(getAnimationByIndex("dead"));
+			return;
+		}
+
+		if (getIsDucking())
 		{
 			applyAnimation(getAnimationByIndex("duck"));
 			return;
 		}
 
-		if (state == STATE_DEAD)
-			applyAnimation(getAnimationByIndex("dead"));
 		if (lastFirstState == STATE_IDLE && (state == STATE_WALKINGLEFT || state == STATE_WALKINGRIGHT))
 			applyAnimation(getAnimationByIndex("walk"));
 		if ((lastFirstState == STATE_WALKINGLEFT || lastFirstState == STATE_WALKINGRIGHT) && state == STATE_IDLE)
@@ -85,7 +90,7 @@ namespace Engine
 			auto secondState = getSecondState();
 			if (secondState == STATE_FALLING || secondState == STATE_JUMPING || secondState == STATE_CLIMBING)
 				applyAnimation(getAnimationByIndex("jump"));
-			else if (secondState == STATE_IDLE)
+			else if (secondState == STATE_IDLE || secondState == STATE_FLYING)
 				applyAnimation(getAnimationByIndex("stand"));
 		}
 	}
@@ -105,13 +110,13 @@ namespace Engine
 			return;
 		}
 
-		if (state != STATE_DEAD && getIsDucking())
+		if (getIsDucking())
 		{
 			applyAnimation(getAnimationByIndex("duck"));
 			return;
 		}
 
-		else if ((state == STATE_FALLING || state == STATE_JUMPING || state == STATE_CLIMBING) && getFirstState() == STATE_IDLE)
+		if ((state == STATE_FALLING || state == STATE_JUMPING || state == STATE_CLIMBING) && getFirstState() == STATE_IDLE)
 			applyAnimation(getAnimationByIndex("jump"));
 		else if (state == STATE_IDLE && getFirstState() == STATE_IDLE)
 			applyAnimation(getAnimationByIndex("stand"));
@@ -132,14 +137,14 @@ namespace Engine
 
 		if (getSecondState() == STATE_CLIMBING)
 		{
-			if (getKey(inputManager->getKeyBinding("Climb")))
+			if (getKey(inputManager->getKeyBinding("Jump")))
 				setVelocity(1, 20.0f);
 			else if (getKey(inputManager->getKeyBinding("Duck")))
 				setVelocity(1, -20.0f);
 			else
 				setVelocity(1, 0.0f);
 		}
-		else
+		else if (getSecondState() != STATE_FLYING)
 		{
 			if (!getIsDucking() && getKey(inputManager->getKeyBinding("Duck")))
 			{
@@ -159,6 +164,15 @@ namespace Engine
 				}
 				setIsDucking(false);
 			}
+		}
+		else if (getSecondState() == STATE_FLYING)
+		{
+			if (getKey(inputManager->getKeyBinding("Jump")))
+				setVelocity(1, 20.0f);
+			else if (getKey(inputManager->getKeyBinding("Duck")))
+				setVelocity(1, -20.0f);
+			else
+				setVelocity(1, 0.0f);
 		}
 
 		switch (firstState)

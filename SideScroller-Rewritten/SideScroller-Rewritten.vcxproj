@@ -99,7 +99,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="CollisionInfo.h" />
     <ClInclude Include="CollisionManager.h" />
-    <ClInclude Include="CollisionSides.h" />
+    <ClInclude Include="CollisionSide.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Font.h" />

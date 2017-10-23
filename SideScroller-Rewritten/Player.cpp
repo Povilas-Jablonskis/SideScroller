@@ -20,21 +20,26 @@ namespace Engine
 			return false;
 		}
 
+		//if (getFirstState() == STATE_WALKINGLEFT)
+		//	velocity.x -= gravity.x * dt;
+		//else if (getFirstState() == STATE_WALKINGRIGHT)
+		//	velocity.x += gravity.x * dt;
+
 		Entity::update(dt, gravity);
 
 		lastCamera = camera;
 
 		if (getPosition(0) < glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
 			camera.x = 0;
-		else if (getPosition(0) > 2000.0f - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
-			camera.x = 2000.0f - glutGet(GLUT_INIT_WINDOW_WIDTH);
+		else if (getPosition(0) > 2016.0f - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2)
+			camera.x = 2016.0f - glutGet(GLUT_INIT_WINDOW_WIDTH);
 		else
 			camera.x = getPosition(0) - glutGet(GLUT_INIT_WINDOW_WIDTH) / 2;
 
 		if (getPosition(1) < glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
 			camera.y = 0;
-		else if (getPosition(1) > 2000.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
-			camera.y = 2000.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT);
+		else if (getPosition(1) > 2016.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2)
+			camera.y = 2016.0f - glutGet(GLUT_INIT_WINDOW_HEIGHT);
 		else
 			camera.y = getPosition(1) - glutGet(GLUT_INIT_WINDOW_HEIGHT) / 2;
 
@@ -43,12 +48,15 @@ namespace Engine
 
 	void Player::respawn()
 	{
-		setHealth(getHealth()-1);
+		resetInput();
+		firstState = STATE_IDLE;
+		secondState = STATE_IDLE;
+		setHealth(getHealth() - 1);
 		if (getHealth() < 1)
 			onDeath();
 		setVelocity(startVelocity);
-		position = glm::vec2(0.0f, 70.0f);
-		lastPosition = glm::vec2(0.0f, 70.0f);
+		position = glm::vec2(0.0f, 64.0f);
+		lastPosition = glm::vec2(0.0f, 64.0f);
 	}
 
 	void Player::restart()
@@ -56,8 +64,8 @@ namespace Engine
 		setScore(0);
 		setHealth(startHealth);
 		setVelocity(startVelocity);
-		position = glm::vec2(0.0f, 70.0f);
-		lastPosition = glm::vec2(0.0f, 70.0f);
+		position = glm::vec2(0.0f, 64.0f);
+		lastPosition = glm::vec2(0.0f, 64.0f);
 	}
 
 	float Player::getCamera(int index) const

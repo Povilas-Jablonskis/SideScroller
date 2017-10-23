@@ -34,8 +34,6 @@ namespace Engine
 			std::function<void()> onHoverExitFunc;
 			std::function<void()> onMouseClickFunc;
 			std::function<void()> onMouseReleaseFunc;
-			virtual void onHoverEnterFuncDefaults();
-			virtual void onHoverExitFuncDefaults();
 		protected:
 			float originalWidth;
 			float originalHeight;

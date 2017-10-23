@@ -32,8 +32,6 @@ namespace Engine
 			inline void setPosition(glm::vec2 _position) { needUpdate = true; position = _position; }
 			inline void setPosition(int index, float _position) { needUpdate = true; position[index] = _position; }
 			bool checkIfCollides(glm::vec2);
-			void onHoverEnterFuncDefaults();
-			void onHoverExitFuncDefaults();
 			void fixPosition(UIElementBase* = nullptr);
 		private:
 			bool needUpdate;

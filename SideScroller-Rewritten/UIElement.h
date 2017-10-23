@@ -30,8 +30,6 @@ namespace Engine
 			void checkForMouseClickOnThis(bool, bool, glm::vec2);
 			void GetAllChildrenElements(std::vector<std::shared_ptr<UIElement>>&);
 			void GetAllChildrenTexts(std::vector<std::shared_ptr<Text>>&);
-			void onHoverEnterFuncDefaults();
-			void onHoverExitFuncDefaults();
 		private:
 			std::shared_ptr<UIElement> parentMenu;
 			std::vector<std::shared_ptr<UIElement>> elements;

@@ -47,6 +47,7 @@ namespace Engine
 			#if _DEBUG
 				std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 			#endif
+			return;
 		}
 		auto tempFont = std::make_shared<Font>(face);
 		faces.push_back(std::pair<std::string, std::shared_ptr<Font>>(_name, std::move(tempFont)));

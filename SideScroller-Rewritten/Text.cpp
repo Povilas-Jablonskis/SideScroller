@@ -6,6 +6,15 @@ namespace Engine
 	Text::Text(const std::string& _text, int _fontsize, glm::vec2 _position, glm::vec4 _color, std::shared_ptr<Font> _font, glm::vec2 _positionPerc) :
 		UIElementBase(0, 0, _position, _color, _positionPerc), leftButtonClicked(0), fontSize(_fontsize), text(_text), font(_font), needUpdate(true)
 	{
+		onHoverEnterFunc = [this]()
+		{
+			changeColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		};
+
+		onHoverExitFunc = [this]()
+		{
+			changeColor(glm::vec4(255.0f, 160.0f, 122.0f, 1.0f));
+		};
 	}
 
 	Text::Text(const char _text, int _fontsize, glm::vec2 _position, glm::vec4 _color, std::shared_ptr<Font> _font, glm::vec2 _positionPerc) :
@@ -17,20 +26,6 @@ namespace Engine
 	Text::~Text()
 	{
 		cachedCharacters.clear();
-	}
-
-	void Text::onHoverEnterFuncDefaults()
-	{
-		color.r = 0.0f;
-		color.g = 0.0f;
-		color.b = 0.0f;
-	}
-
-	void Text::onHoverExitFuncDefaults()
-	{
-		color.r = 255.0f;
-		color.g = 160.0f;
-		color.b = 122.0f;
 	}
 
 	bool Text::checkIfCollides(glm::vec2 colCoordinates)

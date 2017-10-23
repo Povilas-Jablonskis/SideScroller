@@ -1,7 +1,7 @@
 #ifndef _collisionInfoH
 #define _collisionInfoH
 
-#include "CollisionSides.h"
+#include "CollisionSide.h"
 
 #include <vec2.hpp>
 
@@ -10,7 +10,7 @@ namespace Engine
 	struct CollisionInfo
 	{
 		glm::vec2 depth;
-		CollisionSides side;
+		CollisionSide side;
 	};
 }
 #endif

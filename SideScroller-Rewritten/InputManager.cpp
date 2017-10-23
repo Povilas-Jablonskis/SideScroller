@@ -23,7 +23,7 @@ namespace Engine
 			if (keyBinding.first == currentKeyBinding->first->first)
 			{
 				currentKeyBinding->second->setIsStatic(false);
-				currentKeyBinding->second->changeColor(glm::vec4(255.0f, 160.0f, 122.0f, 1.0f));
+				currentKeyBinding->second->onHoverExitFunc();
 				currentKeyBinding->second.reset();
 				return true;
 			}

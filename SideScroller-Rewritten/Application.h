@@ -33,7 +33,8 @@ namespace Engine
 			std::string virtualKeyCodeToString(SHORT);
 			inline GameState getState() const { return gameState; }
 			inline void setState(GameState state) { gameState = state; }
-			void addEnemyToList(std::shared_ptr<Enemy> enemy) { enemies.push_back(enemy); };
+			inline void addEnemyToList(std::shared_ptr<Enemy> enemy) { enemies.push_back(enemy); }
+			inline void addObjectToList(std::shared_ptr<BaseGameObject> obj){ objects.push_back(obj); }
 
 			void render();
 			void keyboardInputUp(unsigned char, int, int);
@@ -47,8 +48,6 @@ namespace Engine
 			std::shared_ptr<UIElement> getUIElement(const std::string&);
 			std::shared_ptr<UIElement> getPlayerUIElement(const std::string&);
 			void erasePlayerUIElement(const std::string&);
-
-			float randomFloat(float, float);
 
 			void initPlayerUI();
 			void initSpriteSheets();
@@ -73,7 +72,7 @@ namespace Engine
 			std::vector<std::shared_ptr<BaseGameObject>> backgroundObjects;
 			std::vector<std::shared_ptr<BaseGameObject>> objects;
 			std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>> unlockableObjects;
-			std::vector<std::shared_ptr<Entity>> enemies;
+			std::vector<std::shared_ptr<Enemy>> enemies;
 			std::vector<std::pair<std::string, std::shared_ptr<UIElement>>> ui;
 			std::vector<std::pair<std::string, std::shared_ptr<UIElement>>> playerUI;
 

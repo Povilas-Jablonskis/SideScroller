@@ -16,8 +16,6 @@ namespace Engine
 			void setSecondState(State);
 			inline void setIsDucking(bool boolean) { isDucking = boolean; }
 			inline bool getIsDucking() const { return isDucking; }
-			inline void setCanClimb(bool boolean) { canClimb = boolean; }
-			inline bool getCanClimb() const { return canClimb; }
 			void resetInput();
 			void fixInput();
 			void updateInput(std::shared_ptr<InputManager>);
@@ -28,7 +26,6 @@ namespace Engine
 		protected:
 			static const int pressedKeyCount = 256;
 			bool* pressedkeys;
-			bool canClimb;
 			bool isDucking;
 	};
 }

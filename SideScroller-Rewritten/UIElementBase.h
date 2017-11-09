@@ -23,13 +23,12 @@ namespace Engine
 	{
 		public:
 			UIElementBase(float, float, glm::vec2, glm::vec4, glm::vec2);
-			void initFuncs();
 			virtual void update(float);
-			inline void setIsStatic(bool _isStatic) { isStatic = _isStatic; }
 			virtual void fixPosition(UIElementBase* = nullptr);
 			virtual bool checkIfCollides(glm::vec2);
-			virtual void checkIfMouseHoverThis(glm::vec2);
-			virtual void checkForMouseClickOnThis(bool, bool, glm::vec2);
+			virtual void checkOnHover(glm::vec2);
+			virtual void checkOnMouseClick(glm::vec2);
+			virtual void checkOnMouseRelease();
 			std::function<void()> onHoverEnterFunc;
 			std::function<void()> onHoverExitFunc;
 			std::function<void()> onMouseClickFunc;
@@ -38,8 +37,8 @@ namespace Engine
 			float originalWidth;
 			float originalHeight;
 			glm::vec2 positionPercents;
-			bool isStatic;
 			bool gotMousedHovered;
+			bool gotMousedClicked;
 	};
 }
 #endif

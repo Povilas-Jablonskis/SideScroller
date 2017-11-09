@@ -3,7 +3,7 @@
 namespace Engine
 {
 	Entity::Entity(float _width, float _height, glm::vec2 _position, glm::vec2 _velocity, glm::vec4 _color)
-		: BaseGameObject(_width, _height, _position, _velocity, _color), isDucking(false), canClimb(false)
+		: BaseGameObject(_width, _height, _position, _velocity, _color), isDucking(false)
 	{
 		pressedkeys = new bool[pressedKeyCount];
 		resetInput();
@@ -28,22 +28,12 @@ namespace Engine
 
 	bool Entity::update(float dt, glm::vec2 gravity)
 	{
-		if ((getSecondState() != STATE_FLYING && getSecondState() != STATE_CLIMBING) || (getSecondState() == STATE_FLYING && getFirstState() == STATE_DEAD))
+		if (getSecondState() == STATE_IDLE || getSecondState() == STATE_JUMPING || getSecondState() == STATE_FALLING || (getSecondState() == STATE_FLYING && getFirstState() == STATE_DEAD))
 			velocity.y += gravity.y * dt;
 
-		if (getSecondState() == STATE_IDLE || getSecondState() == STATE_JUMPING || getSecondState() == STATE_FALLING)
+		if (getSecondState() == STATE_IDLE || getSecondState() == STATE_JUMPING)
 		{
-			if (getCanClimb())
-			{
-				setVelocity(1, 0.0f);
-				setSecondState(STATE_CLIMBING);
-			}
-			else if (velocity.y <= 0.0f)
-				setSecondState(STATE_FALLING);
-		}
-		else if (getSecondState() == STATE_CLIMBING)
-		{
-			if (!getCanClimb())
+			if (velocity.y < 0.0f)
 				setSecondState(STATE_FALLING);
 		}
 

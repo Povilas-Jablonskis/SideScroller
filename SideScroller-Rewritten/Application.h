@@ -16,6 +16,7 @@
 #include "SpriteSheetManager.h"
 #include "EnemyManager.h"
 #include "EffectManager.h"
+#include "Climbable.h"
 
 #include "UIElement.h"
 #include "Player.h"

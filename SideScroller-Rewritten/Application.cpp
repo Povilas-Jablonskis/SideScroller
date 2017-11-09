@@ -162,8 +162,7 @@ namespace Engine
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Score", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
-		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f));
-		option->setIsStatic(true);
+		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f), true);
 		getPlayerUIElement("Score")->addText(std::move(option));
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Health", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
@@ -174,8 +173,7 @@ namespace Engine
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Level completed", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
-		auto option3 = std::make_shared<Text>("Level completed!", 32, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(40.0f, 55.0f));
-		option3->setIsStatic(true);
+		auto option3 = std::make_shared<Text>("Level completed!", 32, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(40.0f, 55.0f), true);
 		getPlayerUIElement("Level completed")->addText(std::move(option3));
 
 		getPlayerUIElement("Score")->fixPosition();
@@ -205,8 +203,7 @@ namespace Engine
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Score", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
 		//Score
-		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f));
-		option->setIsStatic(true);
+		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f), true);
 		getPlayerUIElement("Score")->addText(std::move(option));
 		getPlayerUIElement("Score")->fixPosition();
 	}
@@ -272,21 +269,23 @@ namespace Engine
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
 		addObjectToList(std::move(object));
 
-		object = std::make_shared<BaseGameObject>(5.0f, 96.0f, glm::vec2(128.0f, 64.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
-		object->setClimable(true);
+		object = std::make_shared<Climbable>(5.0f, 96.0f, glm::vec2(128.0f, 64.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->onCollisionEnter = [](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			auto entity = dynamic_cast<Entity*>(collider);
 
-			if (entity != nullptr && !entity->getCanClimb())
-				entity->setCanClimb(true);
+			if (entity != nullptr && entity->getSecondState() != STATE_CLIMBING && entity->getSecondState() != STATE_FLYING)
+			{
+				entity->setVelocity(1, 0.0f);
+				entity->setSecondState(STATE_CLIMBING);
+			}
 		};
 		object->onCollisionExit = [](BaseGameObject* collider)
 		{
 			auto entity = dynamic_cast<Entity*>(collider);
 
-			if (entity != nullptr && entity->getCanClimb())
-				entity->setCanClimb(false);
+			if (entity != nullptr && entity->getSecondState() == STATE_CLIMBING)
+				entity->setSecondState(STATE_FALLING);
 		};
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("ropeVertical")->getSprite("wholeSpriteSheet"));
 		addObjectToList(std::move(object));
@@ -350,6 +349,15 @@ namespace Engine
 		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("slimeDead"));
 		enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
 		enemy->updateInput(inputManager);
+		enemy->onDeath = [this, enemy]()
+		{
+			enemy->setSecondState(STATE_IDLE);
+			enemy->setKey(inputManager->getKeyBinding("Jump"), true);
+			enemy->setKey(inputManager->getKeyBinding("Move Left"), false);
+			enemy->setKey(inputManager->getKeyBinding("Move Right"), false);
+			enemy->updateInput(inputManager);
+			enemy->setFirstState(STATE_DEAD);
+		};
 		enemy->onCollisionEnter = [this, enemy](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			auto player = dynamic_cast<Player*>(collider);
@@ -359,8 +367,7 @@ namespace Engine
 				if (collisionInfo.side == SIDE_TOP)
 				{
 					player->setScore(player->getScore() + 100);
-					enemy->setVelocity(glm::vec2(0.0f, 50.0f));
-					enemy->setFirstState(STATE_DEAD);
+					enemy->onDeath();
 				}
 				else
 					player->setNeedsToBeDeleted(true);
@@ -398,10 +405,11 @@ namespace Engine
 
 		//Main Menu
 		auto options = std::make_shared<Text>("Start Game", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 60.0f));
-		options->onMouseReleaseFunc = [this]()
+		options->onMouseClickFunc = [this, options]()
 		{
-			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
+			options->checkOnMouseRelease();
 
+			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
 			initScene();
 			setState(STATE_STARTED);
 			currentMenu = nullptr;
@@ -409,18 +417,21 @@ namespace Engine
 		};
 		getUIElement("Main Menu")->addText(std::move(options));
 		options = std::make_shared<Text>("Options", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 55.0f));
-		options->onMouseReleaseFunc = [this, Options]()
+		options->onMouseClickFunc = [this, Options, options]()
 		{
-			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
+			options->checkOnMouseRelease();
 
+			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
 			currentMenu = Options;
 			getUIElement("Main Menu")->hideMain();
 			Options->showMain();
 		};
 		getUIElement("Main Menu")->addText(std::move(options));
 		options = std::make_shared<Text>("End Game", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 50.0f));
-		options->onMouseReleaseFunc = [this]()
+		options->onMouseClickFunc = [this, options]()
 		{
+			options->checkOnMouseRelease();
+
 			currentMenu = nullptr;
 			#if _DEBUG
 				std::cout << "exiting" << std::endl;
@@ -433,10 +444,11 @@ namespace Engine
 
 		//Pause Menu
 		options = std::make_shared<Text>("Go To Main Menu", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(45.0f, 60.0f));
-		options->onMouseReleaseFunc = [this]()
+		options->onMouseClickFunc = [this, options]()
 		{
-			soundEngine->play2D("Sounds/buttonselect/3.wav", GL_FALSE);
+			options->checkOnMouseRelease();
 
+			soundEngine->play2D("Sounds/buttonselect/3.wav", GL_FALSE);
 			currentMenu = getUIElement("Main Menu");
 			setState(STATE_NOT_STARTED_YET);
 			getUIElement("Pause Menu")->hideMain();
@@ -444,8 +456,10 @@ namespace Engine
 		};
 		getUIElement("Pause Menu")->addText(std::move(options));
 		options = std::make_shared<Text>("End Game", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 55.0f));
-		options->onMouseReleaseFunc = [this]()
+		options->onMouseClickFunc = [this, options]()
 		{
+			options->checkOnMouseRelease();
+
 			currentMenu = nullptr;
 			#if _DEBUG
 				std::cout << "exiting" << std::endl;
@@ -460,25 +474,24 @@ namespace Engine
 		size_t i = 0;
 		for (std::vector<std::pair<std::string, int>>::iterator it = keybindings->begin(); it != keybindings->end(); ++it)
 		{
-			options = std::make_shared<Text>(it->first + ": ", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(20.0f, 80.0f - (10 * i)));
-			options->setIsStatic(true);
+			options = std::make_shared<Text>(it->first + ": ", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(20.0f, 80.0f - (10 * i)), true);
 			Controls->addText(std::move(options));
-			options = std::make_shared<Text>(virtualKeyCodeToString(it->second), 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 80.0f - (10 * i)));
+			options = std::make_shared<Text>(virtualKeyCodeToString(it->second), 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 80.0f - (10 * i)), true);
 			options->onMouseClickFunc = [this, options, it]()
 			{
 				soundEngine->play2D("Sounds/buttonselect/3.wav", GL_FALSE);
-
 				inputManager->resetCurrentEditedKeyBinding();
-				inputManager->setCurrentEditedKeyBinding(CurrentEditedKeyBinding(it, options));
-				options->setIsStatic(true);
-				options->onHoverEnterFunc();
+				inputManager->setCurrentEditedKeyBinding(CurrentEditedKeyBinding(it->first, options));
+				options->changeColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 			};
 			Controls->addText(std::move(options));
 			i++;
 		}
 		options = std::make_shared<Text>("Back", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(20.0f, 80.0f - (10 * i)));
-		options->onMouseReleaseFunc = [this, Options, Controls]()
+		options->onMouseClickFunc = [this, Options, Controls, options]()
 		{
+			options->checkOnMouseRelease();
+
 			soundEngine->play2D("Sounds/buttonselect/5.wav", GL_FALSE);
 			currentMenu = Options;
 			Controls->hideMain();
@@ -488,8 +501,10 @@ namespace Engine
 
 		//Options
 		options = std::make_shared<Text>("Controls", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 60.0f));
-		options->onMouseReleaseFunc = [this, Options, Controls]()
+		options->onMouseClickFunc = [this, Options, Controls, options]()
 		{
+			options->checkOnMouseRelease();
+
 			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
 			currentMenu = Controls;
 			Options->hideMain();
@@ -499,8 +514,10 @@ namespace Engine
 		options = std::make_shared<Text>("Sounds", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 55.0f));
 		Options->addText(std::move(options));
 		options = std::make_shared<Text>("Back", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 50.0f));
-		options->onMouseReleaseFunc = [this, Options]()
+		options->onMouseClickFunc = [this, Options, options]()
 		{
+			options->checkOnMouseRelease();
+
 			soundEngine->play2D("Sounds/buttonselect/5.wav", GL_FALSE);
 			currentMenu = getUIElement("Main Menu");
 			Options->hideMain();
@@ -511,8 +528,7 @@ namespace Engine
 		getUIElement("Main Menu")->addUIElement(std::move(Options));
 
 		//Game Over
-		options = std::make_shared<Text>("Game Over", 32, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 55.0f));
-		options->setIsStatic(true);
+		options = std::make_shared<Text>("Game Over", 32, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 55.0f), true);
 		getUIElement("Game Over")->addText(std::move(options));
 
 		getUIElement("Game Over")->hideMain();
@@ -537,7 +553,6 @@ namespace Engine
 
 		while (accumulator >= dt)
 		{
-			inputManager->fixInput();
 			if (getState() == STATE_STARTED)
 			{
 				for (std::vector<std::shared_ptr<Enemy>>::iterator it = enemies.begin(); it != enemies.end();)
@@ -581,15 +596,15 @@ namespace Engine
 
 				//Collision detection
 
-				collisionManager->checkCollision(player, objects, player->getLastCamera(), player->getCamera());
+				collisionManager->checkCollision(player, objects);
 
 				std::vector<std::shared_ptr<BaseGameObject>> tempVector;
 
 				for (std::vector<std::pair<std::string, std::shared_ptr<BaseGameObject>>>::iterator it = unlockableObjects.begin(); it != unlockableObjects.end(); ++it)
 					tempVector.push_back(it->second);
 
-				collisionManager->checkCollision(player, tempVector, player->getLastCamera(), player->getCamera());
-				collisionManager->checkCollision(player, enemies, player->getLastCamera(), player->getCamera());
+				collisionManager->checkCollision(player, tempVector);
+				collisionManager->checkCollision(player, enemies);
 
 				t += dt;
 			}
@@ -690,7 +705,7 @@ namespace Engine
 		if (c >= 32 && c < 127 && !inputManager->isKeyBindingUsed(key) && currentKeyBinding->second != nullptr)
 		{
 			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
-			currentKeyBinding->first->second = key;
+			inputManager->setKeyBinding(currentKeyBinding->first, key);
 			currentKeyBinding->second->setText(virtualKeyCodeToString(key));
 			inputManager->resetCurrentEditedKeyBinding();
 		}
@@ -778,24 +793,13 @@ namespace Engine
 		int c = 0;
 		std::string charText = "";
 
-		auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
-		if (c != 0 && !inputManager->isKeyBindingUsed(key) && currentKeyBinding->second != nullptr)
-		{
-			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
-			currentKeyBinding->first->second = c;
-			currentKeyBinding->second->setText(charText);
-			inputManager->resetCurrentEditedKeyBinding();
-		}
-
-		if (player == nullptr) return;
-
 		switch (key)
 		{
 			case GLUT_KEY_UP:
 			{
 				charText = virtualKeyCodeToString(VK_UP);
 				c = VK_UP;
-				if (!player->getKey(VK_UP))
+				if (player != nullptr && !player->getKey(VK_UP))
 					player->setKey(VK_UP, true);
 				break;
 			}
@@ -803,7 +807,7 @@ namespace Engine
 			{
 				charText = virtualKeyCodeToString(VK_DOWN);
 				c = VK_DOWN;
-				if (!player->getKey(VK_DOWN))
+				if (player != nullptr && !player->getKey(VK_DOWN))
 					player->setKey(VK_DOWN, true);
 				break;
 			}
@@ -811,7 +815,7 @@ namespace Engine
 			{
 				charText = virtualKeyCodeToString(VK_LEFT);
 				c = VK_LEFT;
-				if (!player->getKey(VK_LEFT))
+				if (player != nullptr && !player->getKey(VK_LEFT))
 					player->setKey(VK_LEFT, true);
 				break;
 			}
@@ -819,25 +823,34 @@ namespace Engine
 			{
 				charText = virtualKeyCodeToString(VK_RIGHT);
 				c = VK_RIGHT;
-				if (!player->getKey(VK_RIGHT))
+				if (player != nullptr && !player->getKey(VK_RIGHT))
 					player->setKey(VK_RIGHT, true);
 				break;
 			}
 		}
-		player->updateInput(inputManager);
+
+		if (player != nullptr)
+			player->updateInput(inputManager);
+
+		auto currentKeyBinding = inputManager->getCurrentEditedKeyBinding();
+		if (c != 0 && !inputManager->isKeyBindingUsed(key) && currentKeyBinding->second != nullptr)
+		{
+			soundEngine->play2D("Sounds/buttonselect/2.wav", GL_FALSE);
+			inputManager->setKeyBinding(currentKeyBinding->first, c);
+			currentKeyBinding->second->setText(charText);
+			inputManager->resetCurrentEditedKeyBinding();
+		}
 	}
 
 	void Application::motionFunc(int x, int y)
 	{
-		inputManager->setLastMousePosition(glm::vec2(x, y));
-
 		glm::vec2 lastMousePosition = glm::vec2(x, y);
 		lastMousePosition.y -= glutGet(GLUT_WINDOW_HEIGHT);
 		lastMousePosition.y *= -1;
 
 		for (auto uiElement : ui)
 		{
-			uiElement.second->checkIfMouseHoverThis(lastMousePosition);
+			uiElement.second->checkOnHover(lastMousePosition);
 		}
 	}
 
@@ -847,20 +860,19 @@ namespace Engine
 		lastMousePosition.y -= glutGet(GLUT_WINDOW_HEIGHT);
 		lastMousePosition.y *= -1;
 
-		if (button == GLUT_LEFT_BUTTON)
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		{
-			inputManager->setLeftMouseState(state == GLUT_DOWN ? true : false);
-			inputManager->setLastLeftMouseState(state == GLUT_DOWN ? false : true);
-
 			for (auto uiElement : ui)
 			{
-				uiElement.second->checkForMouseClickOnThis(inputManager->getLeftMouseState(), inputManager->getLastLeftMouseState(), lastMousePosition);
+				uiElement.second->checkOnMouseClick(lastMousePosition);
 			}
 		}
-		else if (button == GLUT_RIGHT_BUTTON)
+		else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 		{
-			inputManager->setRightMouseState(state == GLUT_DOWN ? true : false);
-			inputManager->setLastRightMouseState(state == GLUT_DOWN ? false : true);
+			for (auto uiElement : ui)
+			{
+				uiElement.second->checkOnMouseRelease();
+			}
 		}
 	}
 

@@ -73,6 +73,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BaseGameObject.cpp" />
+    <ClCompile Include="Climbable.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="BaseGameObject.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="Climbable.h" />
     <ClInclude Include="CollisionInfo.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="CollisionSide.h" />

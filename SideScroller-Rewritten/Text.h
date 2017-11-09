@@ -21,14 +21,14 @@ namespace Engine
 	{
 		public:
 			~Text();
-			Text(const std::string&, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2);
-			Text(const char, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2);
+			Text(const std::string&, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2, bool = false);
+			//Text(const char, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2);
 			void update(float);
 			inline std::shared_ptr<Font> getFont() const { return font; }
 			inline const std::vector<std::pair<GLuint, std::vector<GLfloat>>>& getCachedCharacters() { return cachedCharacters; }
 			inline std::string getText() const { return text; }
 			inline void setText(const std::string& newtext) { needUpdate = true; text = newtext; }
-			inline void setText(char newtext) { needUpdate = true; text = newtext; }
+			//inline void setText(const char newtext) { needUpdate = true; text = newtext; }
 			inline void setPosition(glm::vec2 _position) { needUpdate = true; position = _position; }
 			inline void setPosition(int index, float _position) { needUpdate = true; position[index] = _position; }
 			bool checkIfCollides(glm::vec2);
@@ -39,7 +39,6 @@ namespace Engine
 			int fontSize;
 			std::vector<std::pair<GLuint, std::vector<GLfloat>>> cachedCharacters;
 			std::shared_ptr<Font> font;
-			SHORT leftButtonClicked;
 	};
 }
 #endif

@@ -80,33 +80,48 @@ namespace Engine
 			(*it)->GetAllChildrenTexts(out);
 	}
 
-	void UIElement::checkIfMouseHoverThis(glm::vec2 lastMousePosition)
+	void UIElement::checkOnHover(glm::vec2 lastMousePosition)
 	{
-		UIElementBase::checkIfMouseHoverThis(lastMousePosition);
+		UIElementBase::checkOnHover(lastMousePosition);
 
 		for (auto text : texts)
 		{
-			text->checkIfMouseHoverThis(lastMousePosition);
+			text->checkOnHover(lastMousePosition);
 		}
 
 		for (auto element : elements)
 		{
-			element->checkIfMouseHoverThis(lastMousePosition);
+			element->checkOnHover(lastMousePosition);
 		}
 	}
 
-	void UIElement::checkForMouseClickOnThis(bool leftMouseState, bool lastLeftMouseState, glm::vec2 lastMousePosition)
+	void UIElement::checkOnMouseClick(glm::vec2 lastMousePosition)
 	{
-		UIElementBase::checkForMouseClickOnThis(leftMouseState, lastLeftMouseState, lastMousePosition);
+		UIElementBase::checkOnMouseClick(lastMousePosition);
 
 		for (auto text : texts)
 		{
-			text->checkForMouseClickOnThis(leftMouseState, lastLeftMouseState, lastMousePosition);
+			text->checkOnMouseClick(lastMousePosition);
 		}
 
 		for (auto element : elements)
 		{
-			element->checkForMouseClickOnThis(leftMouseState, lastLeftMouseState, lastMousePosition);
+			element->checkOnMouseClick(lastMousePosition);
+		}
+	}
+
+	void UIElement::checkOnMouseRelease()
+	{
+		UIElementBase::checkOnMouseRelease();
+
+		for (auto text : texts)
+		{
+			text->checkOnMouseRelease();
+		}
+
+		for (auto element : elements)
+		{
+			element->checkOnMouseRelease();
 		}
 	}
 

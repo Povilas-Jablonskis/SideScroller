@@ -43,10 +43,7 @@ namespace Engine
 			virtual void setFirstState(State);
 			inline State getSecondState() const { return secondState; }
 			virtual void setSecondState(State);
-			inline void setClimable(bool boolean) { climable = boolean; }
-			inline bool getClimable() const { return climable; }
 		protected:
-			bool climable;
 			State firstState;
 			State secondState;
 			bool needsToBeDeleted;

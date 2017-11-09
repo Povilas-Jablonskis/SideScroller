@@ -26,8 +26,9 @@ namespace Engine
 			inline const std::vector<std::shared_ptr<Text>>& getTexts() { return texts; }
 			inline void setParent(std::shared_ptr<UIElement> _parent) { parentMenu = _parent; }
 			inline std::shared_ptr<UIElement> getParent() const { return parentMenu; }
-			void checkIfMouseHoverThis(glm::vec2);
-			void checkForMouseClickOnThis(bool, bool, glm::vec2);
+			void checkOnHover(glm::vec2);
+			void checkOnMouseClick(glm::vec2);
+			void checkOnMouseRelease();
 			void GetAllChildrenElements(std::vector<std::shared_ptr<UIElement>>&);
 			void GetAllChildrenTexts(std::vector<std::shared_ptr<Text>>&);
 		private:

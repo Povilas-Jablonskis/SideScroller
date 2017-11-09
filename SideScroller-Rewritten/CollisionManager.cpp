@@ -52,17 +52,10 @@ namespace Engine
 		};
 	}
 
-	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX, glm::vec2 lastCamera, glm::vec2 camera) // AABB - AABB collision
+	bool CollisionManager::checkCollision(std::shared_ptr<Entity> object, std::shared_ptr<BaseGameObject> collider, bool checkX, CollisionInfo collisionInfo) // AABB - AABB collision
 	{
 		if (object->getNeedsToBeDeleted() || object->getFirstState() == STATE_DEAD) return false;
 		if (collider->getNeedsToBeDeleted() || collider->getFirstState() == STATE_DEAD) return false;
-
-		CollisionInfo collisionInfo;
-
-		if (checkX)
-			collisionInfo = checkCollision(glm::vec4(object->getPosition(0), object->getLastPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(camera.x, lastCamera.y), collider->getSize(0), collider->getSize(1)));
-		else
-			collisionInfo = checkCollision(glm::vec4(object->getLastPosition(0), object->getPosition(1), object->getSize(0), object->getSize(1)), glm::vec4(collider->getPosition() - glm::vec2(lastCamera.x, camera.y), collider->getSize(0), collider->getSize(1)));
 
 		if (collisionInfo.depth == glm::vec2(0.0f, 0.0f))
 		{
@@ -80,19 +73,24 @@ namespace Engine
 			object->onCollisionEnter(collider.get(), collisionInfo);
 		}
 
-		if(object->getCanClimb() && collider->getClimable())
+		bool isClimbable = (dynamic_cast<Climbable*>(collider.get()) == nullptr) ? false : true;
+
+		if (object->getSecondState() == STATE_CLIMBING && isClimbable)
 			return true;
 
 		if (checkX)
 			object->setPosition(0, object->getPosition(0) + collisionInfo.depth.x);
 		else
 		{
-			if (collisionInfo.depth.y < 0.0f)
-				object->setSecondState(STATE_FALLING);
-			else
-				object->setSecondState(STATE_IDLE);
+			if (object->getSecondState() != STATE_CLIMBING)
+			{
+				if (collisionInfo.depth.y < 0.0f)
+					object->setSecondState(STATE_FALLING);
+				else
+					object->setSecondState(STATE_IDLE);
+				object->setVelocity(1, 0.0f);
+			}
 
-			object->setVelocity(1, 0.0f);
 			object->setPosition(1, object->getPosition(1) + collisionInfo.depth.y);
 		}
 		return true;

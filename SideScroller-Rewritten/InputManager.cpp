@@ -2,42 +2,32 @@
 
 namespace Engine
 {
-	InputManager::InputManager()
+	InputManager::InputManager() : currentEditedKeyBinding(CurrentEditedKeyBinding("", nullptr))
 	{
-		setLeftMouseState(false);
-		setLastLeftMouseState(false);
-		setRightMouseState(false);
-		setLastRightMouseState(false);
-		setCurrentEditedKeyBinding(CurrentEditedKeyBinding(keyBindings.end(), nullptr));
+
 	}
 
 	bool InputManager::resetCurrentEditedKeyBinding()
 	{
 		auto currentKeyBinding = getCurrentEditedKeyBinding();
 
-		if (currentKeyBinding->second == nullptr)
+		if (currentKeyBinding->first.empty() || currentKeyBinding->second == nullptr)
 			return false;
 
-		for (auto keyBinding : keyBindings)
-		{
-			if (keyBinding.first == currentKeyBinding->first->first)
-			{
-				currentKeyBinding->second->setIsStatic(false);
-				currentKeyBinding->second->onHoverExitFunc();
-				currentKeyBinding->second.reset();
-				return true;
-			}
-		}
-
-		return false;
+		currentKeyBinding->second->changeColor(glm::vec4(255.0f, 160.0f, 122.0f, 1.0f));
+		currentKeyBinding->second.reset();
+		return true;
 	}
 
 	void InputManager::setKeyBinding(const std::string& key, int value)
 	{
-		for (auto keyBinding : keyBindings)
+		for (auto it = keyBindings.begin(); it != keyBindings.end(); ++it)
 		{
-			if (keyBinding.first == key)
+			if (it->first == key)
+			{
+				it->second = value;
 				return;
+			}
 		}
 
 		keyBindings.push_back(std::pair<std::string, int>(key, value));
@@ -52,20 +42,5 @@ namespace Engine
 		}
 		
 		return -1;
-	}
-
-	void InputManager::fixInput()
-	{
-		if (!GetAsyncKeyState(VK_RBUTTON) && rightMouseClick)
-		{
-			lastRightMouseClick = true;
-			rightMouseClick = false;
-		}
-
-		if (!GetAsyncKeyState(VK_LBUTTON) && leftMouseClick)
-		{
-			lastLeftMouseClick = true;
-			leftMouseClick = false;
-		}
 	}
 }

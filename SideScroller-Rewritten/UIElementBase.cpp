@@ -3,12 +3,8 @@
 namespace Engine
 {
 	UIElementBase::UIElementBase(float _width, float _height, glm::vec2 _position, glm::vec4 _color, glm::vec2 _positionPerc) :
-		RenderObject(_width, _height, _position, _color), gotMousedHovered(false), isStatic(false), positionPercents(_positionPerc), originalWidth(width), originalHeight(height)
-	{
-		initFuncs();
-	}
-
-	void UIElementBase::initFuncs()
+		RenderObject(_width, _height, _position, _color), gotMousedHovered(false), gotMousedClicked(false),
+		positionPercents(_positionPerc), originalWidth(width), originalHeight(height)
 	{
 		onHoverEnterFunc = []()
 		{
@@ -79,7 +75,7 @@ namespace Engine
 		return false;
 	}
 
-	void UIElementBase::checkIfMouseHoverThis(glm::vec2 lastMousePosition)
+	void UIElementBase::checkOnHover(glm::vec2 lastMousePosition)
 	{
 		if (color.a == 0.0f) return;
 		
@@ -87,8 +83,7 @@ namespace Engine
 		{
 			if (!gotMousedHovered)
 			{
-				if(!isStatic)
-					onHoverEnterFunc();
+				onHoverEnterFunc();
 				gotMousedHovered = true;
 			}
 		}
@@ -96,20 +91,25 @@ namespace Engine
 		{
 			if (gotMousedHovered)
 			{
-				if (!isStatic)
-					onHoverExitFunc();
+				onHoverExitFunc();
 				gotMousedHovered = false;
 			}
 		}
 	}
 
-	void UIElementBase::checkForMouseClickOnThis(bool leftMouseState, bool lastLeftMouseState, glm::vec2 lastMousePosition)
+	void UIElementBase::checkOnMouseClick(glm::vec2 lastMousePosition)
 	{
-		if (color.a == 0.0f || !checkIfCollides(lastMousePosition)) return;
+		if (color.a == 0.0f || !checkIfCollides(lastMousePosition) || gotMousedClicked) return;
 
-		if (!lastLeftMouseState && leftMouseState)
-			onMouseClickFunc();
-		else if (lastLeftMouseState && !leftMouseState)
-			onMouseReleaseFunc();
+		gotMousedClicked = true;
+		onMouseClickFunc();
+	}
+
+	void UIElementBase::checkOnMouseRelease()
+	{
+		if (color.a == 0.0f || !gotMousedClicked) return;
+
+		gotMousedClicked = false;
+		onMouseReleaseFunc();
 	}
 }

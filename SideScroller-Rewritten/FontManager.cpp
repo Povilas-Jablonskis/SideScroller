@@ -33,7 +33,7 @@ namespace Engine
 		}
 	}
 
-	void FontManager::loadFont(const std::string& _path, const std::string& _name)
+	void FontManager::loadFont(const std::string& _path, const std::string& _name, int fontSize)
 	{
 		for (auto face : faces)
 		{
@@ -49,7 +49,7 @@ namespace Engine
 			#endif
 			return;
 		}
-		auto tempFont = std::make_shared<Font>(face);
+		auto tempFont = std::make_shared<Font>(face, fontSize);
 		faces.push_back(std::pair<std::string, std::shared_ptr<Font>>(_name, std::move(tempFont)));
 	}
 

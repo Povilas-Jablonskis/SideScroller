@@ -2,14 +2,14 @@
 
 namespace Engine
 {
-	Font::Font(FT_Face _face) : face(_face)
+	Font::Font(FT_Face _face, int fontSize) : face(_face)
 	{
-		LoadCharacters();
+		LoadCharacters(fontSize);
 	}
 
-	void Font::LoadCharacters()
+	void Font::LoadCharacters(int fontSize)
 	{
-		FT_Set_Pixel_Sizes(face, 0, 12);
+		FT_Set_Pixel_Sizes(face, 0, fontSize);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 

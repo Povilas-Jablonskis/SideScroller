@@ -50,6 +50,19 @@ namespace Engine
 		animations.push_back(std::pair<std::string, std::shared_ptr<Animation>>(index, animation));
 	}
 
+	void BaseGameObject::changeAnimation(const std::string& index, std::shared_ptr<Animation> animation)
+	{
+		for (std::vector<std::pair<std::string, std::shared_ptr<Animation>>>::iterator it = animations.begin(); it != animations.end(); ++it)
+		{
+			if (it->first == index)
+			{
+				animations.erase(it);
+				animations.push_back(std::pair<std::string, std::shared_ptr<Animation>>(index, animation));
+				return;
+			}
+		}
+	}
+
 	std::shared_ptr<Animation> BaseGameObject::getAnimationByIndex(const std::string& index)
 	{
 		for (auto animation : animations)

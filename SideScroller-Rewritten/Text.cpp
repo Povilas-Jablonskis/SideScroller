@@ -3,8 +3,8 @@
 
 namespace Engine
 {
-	Text::Text(const std::string& _text, int _fontsize, glm::vec2 _position, glm::vec4 _color, std::shared_ptr<Font> _font, glm::vec2 _positionPerc, bool isStatic) :
-		UIElementBase(0, 0, _position, _color, _positionPerc), fontSize(_fontsize), text(_text), font(_font), needUpdate(true)
+	Text::Text(const std::string& _text, glm::vec2 _position, glm::vec4 _color, std::shared_ptr<Font> _font, glm::vec2 _positionPerc, bool isStatic) :
+		UIElementBase(0, 0, _position, _color, _positionPerc), text(_text), font(_font), needUpdate(true)
 	{
 		if (isStatic) return;
 
@@ -19,8 +19,8 @@ namespace Engine
 		};
 	}
 
-	//Text::Text(const char _text, int _fontsize, glm::vec2 _position, glm::vec4 _color, std::shared_ptr<Font> _font, glm::vec2 _positionPerc) :
-	//	UIElementBase(0, 0, _position, _color, _positionPerc), fontSize(_fontsize), text(""), font(_font), needUpdate(true)
+	//Text::Text(const char _text, glm::vec2 _position, glm::vec4 _color, std::shared_ptr<Font> _font, glm::vec2 _positionPerc) :
+	//	UIElementBase(0, 0, _position, _color, _positionPerc), text(""), font(_font), needUpdate(true)
 	//{
 	//	text += _text;
 	//}

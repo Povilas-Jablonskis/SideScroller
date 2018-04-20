@@ -15,11 +15,11 @@ namespace Engine
 	class Font
 	{
 		public:
-			Font(FT_Face);
+			Font(FT_Face, int);
 			const std::map<GLchar, Character>& getCharacterList() { return characters; }
 		private:
 			FT_Face face;
-			void LoadCharacters();
+			void LoadCharacters(int);
 			std::map<GLchar, Character> characters;
 	};
 }

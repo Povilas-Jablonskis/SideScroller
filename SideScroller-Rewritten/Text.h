@@ -21,8 +21,8 @@ namespace Engine
 	{
 		public:
 			~Text();
-			Text(const std::string&, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2, bool = false);
-			//Text(const char, int, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2);
+			Text(const std::string&, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2, bool = false);
+			//Text(const char, glm::vec2, glm::vec4, std::shared_ptr<Font>, glm::vec2);
 			void update(float);
 			inline std::shared_ptr<Font> getFont() const { return font; }
 			inline const std::vector<std::pair<GLuint, std::vector<GLfloat>>>& getCachedCharacters() { return cachedCharacters; }
@@ -36,7 +36,6 @@ namespace Engine
 		private:
 			bool needUpdate;
 			std::string text;
-			int fontSize;
 			std::vector<std::pair<GLuint, std::vector<GLfloat>>> cachedCharacters;
 			std::shared_ptr<Font> font;
 	};

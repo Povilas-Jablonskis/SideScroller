@@ -1,0 +1,10 @@
+{
+  "font": { "key": "kenvector_future_thin.ttf", "value":  12 },
+  "keyBindings": [
+    { "key": "Attack",     "value":  "0x5A" },
+    { "key": "Move Left",  "value":  "0x41" },
+    { "key": "Move Right", "value":  "0x44" },
+    { "key": "Jump",       "value":  "0x20" },
+    { "key": "Duck",       "value":  "0x53" }
+  ]
+}

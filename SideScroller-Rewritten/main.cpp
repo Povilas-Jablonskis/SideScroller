@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(640, 480);
 	glutInitWindowPosition(400, 300);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	glutCreateWindow("Space Shooter");
+	glutCreateWindow("SideScroller-Rewritten");
 
 	glewExperimental = true;
 

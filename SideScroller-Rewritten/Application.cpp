@@ -1,12 +1,13 @@
 #include "Application.h"
 #include <ctime>
+#include <fstream>
 
 namespace Engine
 {
 	const glm::vec2 Application::gravity = glm::vec2(15.0f, -120.0f);
 
 	Application::Application() 
-		: inputManager(std::make_shared<InputManager>()), spriteSheetManager(std::make_shared<SpriteSheetManager>()), collisionManager(std::make_shared<CollisionManager>()), renderer(std::make_shared<Renderer>()), fontManager(std::make_shared<FontManager>()), gameState(STATE_NOT_STARTED_YET)
+		: inputManager(std::make_shared<InputManager>()), spriteSheetManager(std::make_shared<SpriteSheetManager>()), collisionManager(std::make_shared<CollisionManager>()), renderer(std::make_shared<Renderer>()), fontManager(std::make_shared<FontManager>()), gameState(STATE_NOT_STARTED_YET), currentMainFont("")
 	{
 		soundEngine = irrklang::createIrrKlangDevice();
 
@@ -34,18 +35,10 @@ namespace Engine
 			}
 		};
 
-		inputManager->setKeyBinding("Attack", 0x5A);
-		inputManager->setKeyBinding("Move Left", 0x41);
-		inputManager->setKeyBinding("Move Right", 0x44);
-		inputManager->setKeyBinding("Jump", VK_SPACE);
-		inputManager->setKeyBinding("Duck", 0x53);
-
 		renderer->addShader("shader", std::make_shared<Shader>("shader.vert", "shader.frag"));
 		renderer->addShader("textshader", std::make_shared<Shader>("textshader.vert", "textshader.frag"));
 
-		fontManager->loadFont("kenvector_future.ttf", "kenvector_future");
-		fontManager->loadFont("kenvector_future_thin.ttf", "kenvector_future_thin");
-
+		loadConfig();
 		initSpriteSheets();
 
 		background = std::make_shared<UIElementBase>(2016.0f, 2016.0f, glm::vec2(0.0f, 0.0f), glm::vec4(208.0f, 244.0f, 247.0f, 1.0f), glm::vec2(0.0f, 0.0f));
@@ -78,6 +71,7 @@ namespace Engine
 		auto bridgeLogsSpriteSheet = std::make_shared<SpriteSheet>();
 		auto liquidWaterTop_midSpriteSheet = std::make_shared<SpriteSheet>();
 		auto hill_smallSpriteSheet = std::make_shared<SpriteSheet>();
+		auto snailShellSpriteSheet = std::make_shared<SpriteSheet>();
 
 		std::vector<glm::vec4> sprites;
 
@@ -92,6 +86,7 @@ namespace Engine
 		bridgeLogsSpriteSheet->loadSpriteSheet("Tiles/bridgeLogs.png");
 		liquidWaterTop_midSpriteSheet->loadSpriteSheet("Tiles/liquidWaterTop_mid.png");
 		hill_smallSpriteSheet->loadSpriteSheet("Tiles/hill_small.png");
+		snailShellSpriteSheet->loadSpriteSheet("Enemies/snailShell.png");
 
 		enemySpriteSheet->loadSpriteSheet("Enemies/enemies_spritesheet.png");
 		enemySpriteSheet->loadSpritesFromXml("Enemies/enemies_spritesheet.xml");
@@ -111,6 +106,14 @@ namespace Engine
 
 		enemySpriteSheet->getAnimation("flyFly")->setLoopStatus(true);
 		enemySpriteSheet->getAnimation("flyFly")->setDelay(0.1f);
+
+		sprites.clear();
+		sprites.push_back(enemySpriteSheet->getSpriteAsVector("snailWalk1"));
+		sprites.push_back(enemySpriteSheet->getSpriteAsVector("snailWalk2"));
+		enemySpriteSheet->makeAnimation("snailWalk", sprites);
+
+		enemySpriteSheet->getAnimation("snailWalk")->setLoopStatus(true);
+		enemySpriteSheet->getAnimation("snailWalk")->setDelay(0.1f);
 
 		playerSpriteSheet->loadSpriteSheet("Player/p1_spritesheet.png");
 		playerSpriteSheet->loadSpritesFromXml("Player/p1_spritesheet.xml");
@@ -152,6 +155,7 @@ namespace Engine
 		spriteSheetManager->loadSpriteSheet("bridgeLogs", bridgeLogsSpriteSheet);
 		spriteSheetManager->loadSpriteSheet("liquidWaterTop_mid", liquidWaterTop_midSpriteSheet);
 		spriteSheetManager->loadSpriteSheet("hill_small", hill_smallSpriteSheet);
+		spriteSheetManager->loadSpriteSheet("snailShell", snailShellSpriteSheet);
 	}
 
 	void Application::initPlayerUI()
@@ -162,7 +166,7 @@ namespace Engine
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Score", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
-		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f), true);
+		auto option = std::make_shared<Text>(std::to_string(player->getScore()), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont(currentMainFont), glm::vec2(90.0f, 93.0f), true);
 		getPlayerUIElement("Score")->addText(std::move(option));
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Health", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
@@ -173,7 +177,7 @@ namespace Engine
 
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Level completed", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
-		auto option3 = std::make_shared<Text>("Level completed!", 32, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(40.0f, 55.0f), true);
+		auto option3 = std::make_shared<Text>("Level completed!", glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(40.0f, 55.0f), true);
 		getPlayerUIElement("Level completed")->addText(std::move(option3));
 
 		getPlayerUIElement("Score")->fixPosition();
@@ -203,7 +207,7 @@ namespace Engine
 		playerUI.push_back(std::pair<std::string, std::shared_ptr<UIElement>>("Score", std::make_shared<UIElement>(temPos.x, temPos.y, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 0.0f), nullptr, glm::vec2(0.0f, 0.0f))));
 
 		//Score
-		auto option = std::make_shared<Text>(std::to_string(player->getScore()), 18, glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(90.0f, 93.0f), true);
+		auto option = std::make_shared<Text>(std::to_string(player->getScore()), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), fontManager->getFont(currentMainFont), glm::vec2(90.0f, 93.0f), true);
 		getPlayerUIElement("Score")->addText(std::move(option));
 		getPlayerUIElement("Score")->fixPosition();
 	}
@@ -269,7 +273,7 @@ namespace Engine
 		object->applyAnimation(spriteSheetManager->getSpriteSheet("box")->getSprite("wholeSpriteSheet"));
 		addObjectToList(std::move(object));
 
-		object = std::make_shared<Climbable>(5.0f, 96.0f, glm::vec2(128.0f, 64.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		object = std::make_shared<Climbable>(5.0f, 128.0f, glm::vec2(128.0f, 64.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
 		object->onCollisionEnter = [](BaseGameObject* collider, CollisionInfo collisionInfo)
 		{
 			auto entity = dynamic_cast<Entity*>(collider);
@@ -374,8 +378,18 @@ namespace Engine
 			}
 			else
 			{
-				if (collisionInfo.side == SIDE_LEFT || collisionInfo.side == SIDE_RIGHT)
-					enemy->setVelocity(0, enemy->getVelocity(0) * -1.0f);
+				if (collisionInfo.side == SIDE_LEFT)
+				{
+					enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
+					enemy->setKey(inputManager->getKeyBinding("Move Left"), false);
+					enemy->updateInput(inputManager);
+				}
+				else if (collisionInfo.side == SIDE_RIGHT)
+				{
+					enemy->setKey(inputManager->getKeyBinding("Move Right"), false);
+					enemy->setKey(inputManager->getKeyBinding("Move Left"), true);
+					enemy->updateInput(inputManager);
+				}
 			}
 		};
 		enemies.push_back(std::move(enemy));
@@ -386,6 +400,63 @@ namespace Engine
 		enemy->setSecondState(STATE_FLYING);
 		enemy->setKey(inputManager->getKeyBinding("Move Left"), true);
 		enemy->updateInput(inputManager);
+		enemies.push_back(std::move(enemy));
+
+		enemy = std::make_shared<Enemy>(54.0f, 31.0f, glm::vec2(352.0f, 65.0f), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 255.0f, 0.0f, 1.0f));
+		enemy->addAnimation("walk", spriteSheetManager->getSpriteSheet("enemy")->getAnimation("snailWalk"));
+		enemy->addAnimation("dead", spriteSheetManager->getSpriteSheet("enemy")->getSprite("snailShell_upsidedown"));
+		enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
+		enemy->updateInput(inputManager);
+		enemy->onCollisionEnter = [this, enemy](BaseGameObject* collider, CollisionInfo collisionInfo)
+		{
+			auto player = dynamic_cast<Player*>(collider);
+
+			if (player != nullptr)
+			{
+				if (collisionInfo.side == SIDE_TOP)
+				{
+					if (enemy->getSize(0) != 44.0f && enemy->getSize(1) != 30.0f)
+					{
+						player->setScore(player->getScore() + 100);
+						enemy->setSize(0, 44.0f);
+						enemy->setSize(1, 30.0f);
+						enemy->addAnimation("stand", spriteSheetManager->getSpriteSheet("snailShell")->getSprite("wholeSpriteSheet"));
+						enemy->changeAnimation("walk", spriteSheetManager->getSpriteSheet("snailShell")->getSprite("wholeSpriteSheet"));
+						enemy->setKey(inputManager->getKeyBinding("Move Left"), false);
+						enemy->setKey(inputManager->getKeyBinding("Move Right"), false);
+						enemy->updateInput(inputManager);
+					}
+					else
+					{
+						if (!enemy->getKey(inputManager->getKeyBinding("Move Right")) && !enemy->getKey(inputManager->getKeyBinding("Move Left")))
+							enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
+						else
+						{
+							enemy->setKey(inputManager->getKeyBinding("Move Right"), false);
+							enemy->setKey(inputManager->getKeyBinding("Move Left"), false);
+						}
+						enemy->updateInput(inputManager);
+					}
+				}
+				else
+					player->setNeedsToBeDeleted(true);
+			}
+			else
+			{
+				if (collisionInfo.side == SIDE_LEFT)
+				{
+					enemy->setKey(inputManager->getKeyBinding("Move Right"), true);
+					enemy->setKey(inputManager->getKeyBinding("Move Left"), false);
+					enemy->updateInput(inputManager);
+				}
+				else if (collisionInfo.side == SIDE_RIGHT)
+				{
+					enemy->setKey(inputManager->getKeyBinding("Move Right"), false);
+					enemy->setKey(inputManager->getKeyBinding("Move Left"), true);
+					enemy->updateInput(inputManager);
+				}
+			}
+		};
 		enemies.push_back(std::move(enemy));
 
 		initPlayerUI();
@@ -404,7 +475,7 @@ namespace Engine
 		auto Controls = std::make_shared<UIElement>(temPos.x / 2.0f, temPos.y / 2.0f, glm::vec2(0.0, 0.0f), glm::vec4(255.0f, 255.0f, 255.0f, 0.0f), Options, glm::vec2(0.0f, 0.0f));
 
 		//Main Menu
-		auto options = std::make_shared<Text>("Start Game", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 60.0f));
+		auto options = std::make_shared<Text>("Start Game", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(48.0f, 60.0f));
 		options->onMouseClickFunc = [this, options]()
 		{
 			options->checkOnMouseRelease();
@@ -416,7 +487,7 @@ namespace Engine
 			getUIElement("Main Menu")->hideMain();
 		};
 		getUIElement("Main Menu")->addText(std::move(options));
-		options = std::make_shared<Text>("Options", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 55.0f));
+		options = std::make_shared<Text>("Options", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(48.0f, 55.0f));
 		options->onMouseClickFunc = [this, Options, options]()
 		{
 			options->checkOnMouseRelease();
@@ -427,7 +498,7 @@ namespace Engine
 			Options->showMain();
 		};
 		getUIElement("Main Menu")->addText(std::move(options));
-		options = std::make_shared<Text>("End Game", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 50.0f));
+		options = std::make_shared<Text>("End Game", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(48.0f, 50.0f));
 		options->onMouseClickFunc = [this, options]()
 		{
 			options->checkOnMouseRelease();
@@ -443,7 +514,7 @@ namespace Engine
 		getUIElement("Main Menu")->showMain(true);
 
 		//Pause Menu
-		options = std::make_shared<Text>("Go To Main Menu", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(45.0f, 60.0f));
+		options = std::make_shared<Text>("Go To Main Menu", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(45.0f, 60.0f));
 		options->onMouseClickFunc = [this, options]()
 		{
 			options->checkOnMouseRelease();
@@ -455,7 +526,7 @@ namespace Engine
 			getUIElement("Main Menu")->showMain();
 		};
 		getUIElement("Pause Menu")->addText(std::move(options));
-		options = std::make_shared<Text>("End Game", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(48.0f, 55.0f));
+		options = std::make_shared<Text>("End Game", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(48.0f, 55.0f));
 		options->onMouseClickFunc = [this, options]()
 		{
 			options->checkOnMouseRelease();
@@ -474,9 +545,9 @@ namespace Engine
 		size_t i = 0;
 		for (std::vector<std::pair<std::string, int>>::iterator it = keybindings->begin(); it != keybindings->end(); ++it)
 		{
-			options = std::make_shared<Text>(it->first + ": ", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(20.0f, 80.0f - (10 * i)), true);
+			options = std::make_shared<Text>(it->first + ": ", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(20.0f, 80.0f - (10 * i)), true);
 			Controls->addText(std::move(options));
-			options = std::make_shared<Text>(virtualKeyCodeToString(it->second), 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 80.0f - (10 * i)), true);
+			options = std::make_shared<Text>(virtualKeyCodeToString(it->second), glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(50.0f, 80.0f - (10 * i)), true);
 			options->onMouseClickFunc = [this, options, it]()
 			{
 				soundEngine->play2D("Sounds/buttonselect/3.wav", GL_FALSE);
@@ -487,7 +558,7 @@ namespace Engine
 			Controls->addText(std::move(options));
 			i++;
 		}
-		options = std::make_shared<Text>("Back", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(20.0f, 80.0f - (10 * i)));
+		options = std::make_shared<Text>("Back", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(20.0f, 80.0f - (10 * i)));
 		options->onMouseClickFunc = [this, Options, Controls, options]()
 		{
 			options->checkOnMouseRelease();
@@ -499,8 +570,8 @@ namespace Engine
 		};
 		Controls->addText(std::move(options));
 
-		//Options
-		options = std::make_shared<Text>("Controls", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 60.0f));
+		//Options 
+		options = std::make_shared<Text>("Controls", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(50.0f, 60.0f));
 		options->onMouseClickFunc = [this, Options, Controls, options]()
 		{
 			options->checkOnMouseRelease();
@@ -511,9 +582,9 @@ namespace Engine
 			Controls->showMain();
 		};
 		Options->addText(std::move(options));
-		options = std::make_shared<Text>("Sounds", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 55.0f));
+		options = std::make_shared<Text>("Sounds", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(50.0f, 55.0f));
 		Options->addText(std::move(options));
-		options = std::make_shared<Text>("Back", 18, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 50.0f));
+		options = std::make_shared<Text>("Back", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(50.0f, 50.0f));
 		options->onMouseClickFunc = [this, Options, options]()
 		{
 			options->checkOnMouseRelease();
@@ -528,11 +599,32 @@ namespace Engine
 		getUIElement("Main Menu")->addUIElement(std::move(Options));
 
 		//Game Over
-		options = std::make_shared<Text>("Game Over", 32, glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont("kenvector_future_thin"), glm::vec2(50.0f, 55.0f), true);
+		options = std::make_shared<Text>("Game Over", glm::vec2(0.0f, 0.0f), glm::vec4(255.0f, 160.0f, 122.0f, 0.0f), fontManager->getFont(currentMainFont), glm::vec2(50.0f, 55.0f), true);
 		getUIElement("Game Over")->addText(std::move(options));
 
 		getUIElement("Game Over")->hideMain();
 		getUIElement("Pause Menu")->hideMain();
+	}
+
+	void Application::loadConfig()
+	{
+		std::ifstream fs("config.json");
+		nlohmann::json j;
+		fs >> j;
+
+		for (size_t i = 0; i < j["keyBindings"].size(); i++)
+		{
+			auto key = j["keyBindings"][i]["key"].get<std::string>();
+			auto value = std::stoul(j["keyBindings"][i]["value"].get<std::string>(), nullptr, 16);
+			inputManager->setKeyBinding(key, value);
+		}
+
+		auto fontName = j["font"]["key"].get<std::string>();
+		auto fontSize = j["font"]["value"].get<int>();
+		auto stringBeforeSeparator = getStringBeforeSeparator(fontName, '.');
+
+		currentMainFont = stringBeforeSeparator + std::to_string(fontSize);
+		fontManager->loadFont(fontName, stringBeforeSeparator + std::to_string(fontSize), fontSize);
 	}
 
 	void Application::render()
@@ -928,6 +1020,19 @@ namespace Engine
 				playerUI.erase(it);
 				return;
 			}
+		}
+	}
+
+	std::string Application::getStringBeforeSeparator(std::string const& s, char separator)
+	{
+		std::string::size_type pos = s.find(separator);
+		if (pos != std::string::npos)
+		{
+			return s.substr(0, pos);
+		}
+		else
+		{
+			return s;
 		}
 	}
 }

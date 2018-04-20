@@ -57,6 +57,8 @@ namespace Engine
 		setVelocity(startVelocity);
 		position = glm::vec2(0.0f, 64.0f);
 		lastPosition = glm::vec2(0.0f, 64.0f);
+		lastCamera = glm::vec2(0.0f, 0.0f);
+		camera = glm::vec2(0.0f, 0.0f);
 	}
 
 	void Player::restart()
@@ -66,6 +68,8 @@ namespace Engine
 		setVelocity(startVelocity);
 		position = glm::vec2(0.0f, 64.0f);
 		lastPosition = glm::vec2(0.0f, 64.0f);
+		lastCamera = glm::vec2(0.0f, 0.0f);
+		camera = glm::vec2(0.0f, 0.0f);
 	}
 
 	float Player::getCamera(int index) const

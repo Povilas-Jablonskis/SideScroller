@@ -16,7 +16,7 @@ namespace Engine
 		public:
 			~FontManager();
 			FontManager();
-			void loadFont(const std::string&, const std::string&);
+			void loadFont(const std::string&, const std::string&, int);
 			std::shared_ptr<Font> getFont(const std::string&);
 		private:
 			FT_Library library;

@@ -27,6 +27,7 @@ namespace Engine
 			BaseGameObject(float, float, glm::vec2, glm::vec2, glm::vec4);
 			virtual bool update(float, glm::vec2);
 			void addAnimation(const std::string&, std::shared_ptr<Animation>);
+			void changeAnimation(const std::string&, std::shared_ptr<Animation>);
 			std::function<void(BaseGameObject*, CollisionInfo)> onCollisionEnter;
 			std::function<void(BaseGameObject*)> onCollisionExit;
 			std::shared_ptr<Animation> getAnimationByIndex(const std::string&);

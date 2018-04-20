@@ -5,6 +5,8 @@
 #include <agents.h>
 #include <ppltasks.h>
 
+#include "json.hpp"
+
 #include <irrKlang.h>
 
 #include "Renderer.h"
@@ -56,6 +58,8 @@ namespace Engine
 			void updatePlayerScore();
 			void initScene();
 			void initGameUI();
+			void loadConfig();
+			std::string getStringBeforeSeparator(std::string const&, char);
 
 			irrklang::ISoundEngine* soundEngine;
 
@@ -69,6 +73,7 @@ namespace Engine
 			float dt;
 			float currentTime;
 			float accumulator;
+			std::string currentMainFont;
 
 			std::vector<std::shared_ptr<BaseGameObject>> backgroundObjects;
 			std::vector<std::shared_ptr<BaseGameObject>> objects;

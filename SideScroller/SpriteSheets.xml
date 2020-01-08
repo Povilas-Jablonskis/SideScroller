@@ -1,0 +1,34 @@
+<SpriteSheets>
+	<SpriteSheet name="boxItemAlt" spriteSheetName="Tiles/boxItemAlt.png"/>
+	<SpriteSheet name="ropeAttached" spriteSheetName="Tiles/ropeAttached.png"/>
+	<SpriteSheet name="ropeVertical" spriteSheetName="Tiles/ropeVertical.png"/>
+	<SpriteSheet name="grassMid" spriteSheetName="Tiles/grassMid.png"/>
+	<SpriteSheet name="brickWall" spriteSheetName="Tiles/brickWall.png"/>
+	<SpriteSheet name="keyYellow" spriteSheetName="Tiles/keyYellow.png"/>
+	<SpriteSheet name="lock_yellow" spriteSheetName="Tiles/lock_yellow.png"/>
+	<SpriteSheet name="signExit" spriteSheetName="Tiles/signExit.png"/>
+	<SpriteSheet name="bridgeLogs" spriteSheetName="Tiles/bridgeLogs.png"/>
+	<SpriteSheet name="liquidWaterTop_mid" spriteSheetName="Tiles/liquidWaterTop_mid.png"/>
+	<SpriteSheet name="hill_small" spriteSheetName="Tiles/hill_small.png"/>
+	<SpriteSheet name="slime" spriteSheetName="Enemies/enemies_spritesheet.png">
+		<Animation name="slimeWalk" loop="true" delay="0.1">
+			<Sprite name="slimeWalk1" x="52" y="125" width="50" height="28"/>
+			<Sprite name="slimeWalk2" x="0" y="125" width="51" height="26"/>
+		</Animation>
+	</SpriteSheet>
+	<SpriteSheet name="fly" spriteSheetName="Enemies/enemies_spritesheet.png">
+		<Animation name="flyFly" loop="true" delay="0.1">
+			<Sprite name="flyFly1" x="0" y="32" width="72" height="36"/>
+			<Sprite name="flyFly2" x="0" y="0" width="75" height="31"/>
+		</Animation>
+	</SpriteSheet>
+	<SpriteSheet name="box" spriteSheetName="Tiles/box.png"/>
+	<SpriteSheet name="health" spriteSheetName="GUI/healthBar.png">
+		<Sprite name="5" x="0" y="0" width="196" height="27"/>
+		<Sprite name="4" x="0" y="27" width="196" height="27"/>
+		<Sprite name="3" x="0" y="54" width="196" height="27"/>
+		<Sprite name="2" x="0" y="81" width="196" height="27"/>
+		<Sprite name="1" x="0" y="108" width="196" height="27"/>
+		<Sprite name="0" x="0" y="135" width="196" height="27"/>
+	</SpriteSheet>
+</SpriteSheets>

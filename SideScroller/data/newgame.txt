@@ -1,0 +1,2 @@
+GUI\newgame.png 2 1
+1 0 0 0 idle 120 31 

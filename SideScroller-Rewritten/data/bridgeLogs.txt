@@ -1,2 +1,0 @@
-Tiles\bridgeLogs.png 0 1
-1 0 0 0 idle 70 70 

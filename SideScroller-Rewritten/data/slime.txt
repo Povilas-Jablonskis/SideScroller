@@ -1,5 +1,0 @@
-slime.png 0 2
-2 90 10 0 crawlright 59 28
-2 90 -10 0 crawlleft 59 28
-1 0 0 0 deadleft 59 28
-1 0 0 0 deadright 59 28 

@@ -1,0 +1,2 @@
+Tiles\liquidWaterTop_mid.png 1 1
+1 0 0 0 idle 70 70 

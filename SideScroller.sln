@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.960
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SideScroller", "SideScroller\SideScroller.vcxproj", "{EA4BE124-E4D2-4341-A783-2DC2209D728B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA4BE124-E4D2-4341-A783-2DC2209D728B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EA4BE124-E4D2-4341-A783-2DC2209D728B}.Debug|Win32.Build.0 = Debug|Win32
+		{EA4BE124-E4D2-4341-A783-2DC2209D728B}.Release|Win32.ActiveCfg = Release|Win32
+		{EA4BE124-E4D2-4341-A783-2DC2209D728B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AE07B546-C9F8-4D6A-AC3E-F1DDEECAEED3}
+	EndGlobalSection
+EndGlobal

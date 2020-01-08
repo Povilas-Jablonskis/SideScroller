@@ -1,5 +1,0 @@
-fly.png 4 2
-2 90 15 0 flyright 75 72
-2 90 -15 0 flyleft 75 72
-1 0 0 0 deadleft 75 72
-1 0 0 0 deadright 75 72 

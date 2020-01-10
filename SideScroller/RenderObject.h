@@ -3,19 +3,17 @@
 
 #include <iostream>
 #include <vector>
-#include "GL/glew.h"
-#include "GL/freeglut.h"
+#include <glew/glew.h>
+#include <freeglut/freeglut.h>
 #include <functional>
 #include <memory>
 
 #include "Animation.h"
 
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#include "gtx/rotate_vector.hpp"
-#include <vec2.hpp>
-#include <vec3.hpp>
-#include <vec4.hpp>
+#include "glm/gtc/type_ptr.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Engine
 {

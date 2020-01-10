@@ -42,7 +42,7 @@ namespace Engine
 
 					auto animation = element->getAnimation();
 
-					glm::mat4 model;
+					glm::mat4 model(1.0f);
 					model = glm::translate(model, glm::vec3(element->getPosition() - offset, 0.0f));
 
 					model = glm::translate(model, glm::vec3(0.5f * element->getWidth(), 0.5f * element->getHeight(), 0.0f));
@@ -93,7 +93,7 @@ namespace Engine
 
 				auto animation = element->getAnimation();
 
-				glm::mat4 model;
+				glm::mat4 model(1.0f);
 				model = glm::translate(model, glm::vec3(element->getPosition() - offset, 0.0f));
 
 				model = glm::translate(model, glm::vec3(0.5f * element->getWidth(), 0.5f * element->getHeight(), 0.0f));

@@ -7,7 +7,7 @@
 
 #include "json.hpp"
 
-#include <irrKlang.h>
+#include <irrKlang/irrKlang.h>
 
 #include "Renderer.h"
 #include "FontManager.h"

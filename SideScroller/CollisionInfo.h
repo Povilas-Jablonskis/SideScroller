@@ -3,7 +3,7 @@
 
 #include "CollisionSide.h"
 
-#include <vec2.hpp>
+#include <glm/vec2.hpp>
 
 namespace Engine
 {

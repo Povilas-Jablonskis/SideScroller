@@ -1,8 +1,8 @@
 #ifndef _inputManagerH
 #define _inputManagerH
 
-#include "vec2.hpp"
-#include "vec4.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <memory>
 #include <iostream>
 #include <algorithm>

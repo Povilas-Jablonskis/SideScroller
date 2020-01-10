@@ -1,13 +1,13 @@
 #ifndef _spriteSheetH
 #define _spriteSheetH
 
-#include "GL/glew.h"
-#include "GL/freeglut.h"
-#include "SOIL.h"
+#include <glew/glew.h>
+#include <freeglut/freeglut.h>
+#include <Simple OpenGL Image Library/SOIL.h>
 #include <string>
-#include <vec4.hpp>
+#include <glm/vec4.hpp>
 #include <vector>
-#include <rapidxml.hpp>
+#include <rapidxml/rapidxml.hpp>
 #include <iostream>
 #include <memory>
 

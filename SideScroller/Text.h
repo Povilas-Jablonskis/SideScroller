@@ -2,18 +2,15 @@
 #define _textH
 
 #include <ft2build.h>
-#include <freetype/ftglyph.h>
-#include "mat4x4.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include FT_FREETYPE_H
 #include <functional>
 
 #include "UIElementBase.h"
 #include "Font.h"
 
-#include <vec2.hpp>
-#include <vec4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 namespace Engine
 {

@@ -1,10 +1,10 @@
 #ifndef _characterH
 #define _characterH
 
-#include "GL/glew.h"
-#include "GL/freeglut.h"
+#include <glew/glew.h>
+#include <freeglut/freeglut.h>
 
-#include <vec2.hpp>
+#include <glm/vec2.hpp>
 
 namespace Engine
 {

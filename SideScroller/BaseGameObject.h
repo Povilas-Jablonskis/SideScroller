@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <vector>
-#include "GL/glew.h"
-#include "GL/freeglut.h"
+#include <glew/glew.h>
+#include <freeglut/freeglut.h>
 #include <memory>
 
 #include "RenderObject.h"
@@ -12,11 +12,9 @@
 #include "State.h"
 #include "CollisionInfo.h"
 
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#include "gtx/rotate_vector.hpp"
-#include <vec2.hpp>
-#include <vec4.hpp>
+#include "glm/gtc/type_ptr.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 namespace Engine
 {

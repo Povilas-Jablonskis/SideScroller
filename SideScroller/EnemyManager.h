@@ -1,7 +1,7 @@
 #ifndef _enemyManagerH
 #define _enemyManagerH
 
-#include <rapidxml.hpp>
+#include <rapidxml/rapidxml.hpp>
 #include <iostream>
 #include <vector>
 #include <memory>

@@ -1,7 +1,7 @@
 #ifndef _effectManagerH
 #define _effectManagerH
 
-#include <rapidxml.hpp>
+#include <rapidxml/rapidxml.hpp>
 #include <iostream>
 #include <vector>
 #include <memory>

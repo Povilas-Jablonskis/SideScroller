@@ -1,11 +1,11 @@
 #ifndef _animationH
 #define _animationH
 
-#include "GL/glew.h"
-#include "GL/freeglut.h"
-#include <vec4.hpp>
+#include <glew/glew.h>
+#include <freeglut/freeglut.h>
+#include <glm/vec4.hpp>
 #include <vector>
-#include <SOIL.h>
+#include <Simple OpenGL Image Library/SOIL.h>
 
 namespace Engine
 {
